@@ -8,33 +8,41 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  SDL2_REF: ${{ inputs.sdl2_ref || 'release-2.30.6' }}
   DOLPHIN_REF: ${{ inputs.dolphin_ref || 'master' }}
 
 jobs:
   build-linux:
     runs-on: ubuntu-24.04
     steps:
+      # https://wiki.libsdl.org/SDL2/Installation
       - uses: actions/checkout@v4
         with:
-          repository: dolphin-emu/dolphin
-          ref: ${{ env.DOLPHIN_REF }}
-          submodules: 'recursive'
-      # https://wiki.libsdl.org/SDL2/Installation
+          repository: libsdl-org/SDL
+          ref: ${{ env.SDL2_REF }}
       - run: |
-          cd $(mktemp -d)
-          git clone https://github.com/libsdl-org/SDL
-          cd SDL
-          git checkout release-2.30.6
           mkdir build
           cd build
           ../configure
           make -j $(nproc)
           sudo make install
       # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
+      - uses: actions/checkout@v4
+        with:
+          repository: dolphin-emu/dolphin
+          ref: ${{ env.DOLPHIN_REF }}
+          submodules: 'recursive'
       - run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
           sudo apt-get install -y libudev-dev libsystemd-dev || sudo apt-get install -y libeudev-dev
-          cmake . -DLINUX_LOCAL_DEV=true
-          make -j $(nproc)
+          mkdir build && cd build
+          cmake .. -DLINUX_LOCAL_DEV=true
+          make -j$(nproc)
+          cp -r ../Data/Sys/ Binaries/
+          touch Binaries/portable.txt
+          
+          sudo apt-get install -y tree
+          tree .
+          ls -al Binaries/*
 
