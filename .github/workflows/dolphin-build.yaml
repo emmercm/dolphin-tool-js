@@ -77,14 +77,12 @@ jobs:
             strip dolphin-tool
             ls -al dolphin-tool
       - run: |
-          ls -al
-          ls -al Binaries
-          file Binaries/dolphin-tool
+          file build/Binaries/dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
           mkdir -p "${dir}"
-          mv Binaries/dolphin-tool "${dir}/"
+          mv build/Binaries/dolphin-tool "${dir}/"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
@@ -113,7 +111,7 @@ jobs:
           brew install qt@5
 
           # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
-          export Qt5_DIR=/usr/local/opt/qt/lib/cmake
+          export Qt5_DIR=/opt/homebrew/opt/qt@5/lib/cmake/Qt5
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
@@ -125,14 +123,14 @@ jobs:
           otool -L dolphin-tool
       - name: Strip binary
         run: |
-          ls -al Binaries/dolphin-tool
-          strip Binaries/dolphin-tool
-          ls -al Binaries/dolphin-tool
+          ls -al build/Binaries/dolphin-tool
+          strip build/Binaries/dolphin-tool
+          ls -al build/Binaries/dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
           mkdir -p "${dir}"
-          mv Binaries/dolphin-tool "${dir}/"
+          mv build/Binaries/dolphin-tool "${dir}/"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
