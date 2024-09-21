@@ -1,0 +1,25 @@
+name: Dolphin Build
+
+on:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2409' }}
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: mamedev/mame
+          ref: ${{ env.DOLPHIN_REF }}
+      - run: git submodule update --init --recursive
+      - run: |
+          cmake . -DLINUX_LOCAL_DEV=true
+          make -j $(nproc)
+
