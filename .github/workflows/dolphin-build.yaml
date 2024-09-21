@@ -20,13 +20,23 @@ jobs:
           ref: ${{ env.DOLPHIN_REF }}
           submodules: true
       - run: |
+          # https://wiki.libsdl.org/SDL2/Installation
+          pwd=$(pwd)
+          cd $(mktemp -d)
+          git clone https://github.com/libsdl-org/SDL
+          git checkout release-2.30.6
+          cd SDL
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release --parallel
+          sudo cmake --install . --config Release
+          cd "${pwd}"
+          
           # From https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
-          #sudo add-apt-repository ppa:okirby/qt6-backports
           sudo apt-get update
           sudo apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
           sudo apt-get install -y libudev-dev libsystemd-dev || sudo apt-get install -y libeudev-dev
-          # Other packages not mentioned...
-          sudo apt-get install -y libsdl2-dev
           cmake . -DLINUX_LOCAL_DEV=true
           make -j $(nproc)
 
