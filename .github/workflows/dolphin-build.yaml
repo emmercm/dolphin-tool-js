@@ -21,7 +21,7 @@ jobs:
           submodules: true
       - run: |
           # From https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
-          sudo add-apt-repository ppa:okirby/qt6-backports
+          #sudo add-apt-repository ppa:okirby/qt6-backports
           sudo apt-get update
           sudo apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
           sudo apt-get install -y libudev-dev libsystemd-dev || sudo apt-get install -y libeudev-dev
