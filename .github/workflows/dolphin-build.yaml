@@ -41,6 +41,7 @@ jobs:
       - uses: addnab/docker-run-action@v3
         with:
           image: ${{ matrix.docker_image }}
+          shell: bash
           options: |
             --platform ${{ matrix.docker_arch }}
             --volume ${{ github.workspace }}:/build
@@ -93,6 +94,7 @@ jobs:
   build-macos:
     name: build-macos ${{ matrix.nodejs_arch }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-13
@@ -111,7 +113,6 @@ jobs:
           brew install qt@5
 
           # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
-          sudo xcode-select -s /path/to/Xcode.app/Contents/Developer
           export Qt5_DIR=/usr/local/opt/qt/lib/cmake
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
