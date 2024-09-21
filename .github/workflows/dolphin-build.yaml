@@ -42,8 +42,8 @@ jobs:
         with:
           image: ${{ matrix.docker_image }}
           options: |
-            --platform "${{ matrix.docker_arch }}"
-            --volume "${{ github.workspace }}:/build
+            --platform ${{ matrix.docker_arch }}
+            --volume ${{ github.workspace }}:/build
             --workdir "/build"
           run: |
             # https://wiki.libsdl.org/SDL2/Installation
