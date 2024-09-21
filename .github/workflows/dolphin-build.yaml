@@ -46,6 +46,8 @@ jobs:
             --volume ${{ github.workspace }}:/build
             --workdir /build
           run: |
+            apt-get install -y build-essential git cmake
+
             # https://wiki.libsdl.org/SDL2/Installation
             here=$(pwd)
             cd $(mktemp -d)
@@ -54,13 +56,13 @@ jobs:
             cd build
             ../configure
             make -j$(nproc)
-            sudo make install
+            make install
             cd "${here}"
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
-            sudo apt-get update
-            sudo apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
-            sudo apt-get install -y libudev-dev libsystemd-dev || sudo apt-get install -y libeudev-dev
+            apt-get update
+            apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
+            apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
             mkdir build && cd build
             cmake .. -DLINUX_LOCAL_DEV=true
             make -j$(nproc)
