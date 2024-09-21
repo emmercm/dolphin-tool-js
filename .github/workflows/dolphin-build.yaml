@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2409' }}
+  DOLPHIN_REF: ${{ inputs.dolphin_ref || 'master' }}
 
 jobs:
   build-linux:
@@ -18,7 +18,7 @@ jobs:
         with:
           repository: mamedev/mame
           ref: ${{ env.DOLPHIN_REF }}
-      - run: git submodule update --init --recursive
+          submodules: true
       - run: |
           cmake . -DLINUX_LOCAL_DEV=true
           make -j $(nproc)
