@@ -44,7 +44,7 @@ jobs:
           options: |
             --platform ${{ matrix.docker_arch }}
             --volume ${{ github.workspace }}:/build
-            --workdir "/build"
+            --workdir /build
           run: |
             # https://wiki.libsdl.org/SDL2/Installation
             here=$(pwd)
