@@ -18,9 +18,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - docker_image: i386/ubuntu:latest
-            docker_arch: linux/386
-            nodejs_arch: ia32
+          #- docker_image: i386/ubuntu:latest
+          #  docker_arch: linux/386
+          #  nodejs_arch: ia32
           - docker_image: ubuntu:latest
             docker_arch: linux/amd64
             nodejs_arch: x64
@@ -46,9 +46,10 @@ jobs:
             --volume ${{ github.workspace }}:/build
             --workdir /build
           run: |
+            set -euo pipefail
+
             apt-get update
             apt-get install -y build-essential git cmake
-
             # https://wiki.libsdl.org/SDL2/Installation
             here=$(pwd)
             cd $(mktemp -d)
@@ -73,11 +74,62 @@ jobs:
             cd Binaries/
             ls -al
             strip dolphin-tool
+            ls -al dolphin-tool
       - run: |
+          ls -al
+          ls -al Binaries
           file Binaries/dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
+          mkdir -p "${dir}"
+          mv Binaries/dolphin-tool "${dir}/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
+          path: artifacts/packages/**/dolphin-tool
+          if-no-files-found: error
+
+  build-macos:
+    name: build-macos ${{ matrix.nodejs_arch }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-13
+            nodejs_arch: x64
+          - os: macos-14
+            nodejs_arch: arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: dolphin-emu/dolphin
+          ref: ${{ env.DOLPHIN_REF }}
+          submodules: 'recursive'
+      - name: Build
+        run: |
+          brew install qt@5
+
+          # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
+          sudo xcode-select -s /path/to/Xcode.app/Contents/Developer
+          export Qt5_DIR=/usr/local/opt/qt/lib/cmake
+          export PATH=$PATH:$Qt5_DIR
+          mkdir -p build
+          cd build
+          cmake ..
+          make "-j$(sysctl -n hw.physicalcpu)"
+
+          cd Binaries/
+          file dolphin-tool
+          otool -L dolphin-tool
+      - name: Strip binary
+        run: |
+          ls -al Binaries/dolphin-tool
+          strip Binaries/dolphin-tool
+          ls -al Binaries/dolphin-tool
+      - name: Rename binary
+        run: |
+          dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
           mkdir -p "${dir}"
           mv Binaries/dolphin-tool "${dir}/"
       - uses: actions/upload-artifact@v4
