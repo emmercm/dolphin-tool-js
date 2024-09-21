@@ -21,7 +21,7 @@ jobs:
           submodules: true
       - run: |
           sudo apt-get update
-          sudo apt-get install -y libxi-dev
+          sudo apt-get install -y libxi-dev libegl-dev
           cmake . -DLINUX_LOCAL_DEV=true
           make -j $(nproc)
 
