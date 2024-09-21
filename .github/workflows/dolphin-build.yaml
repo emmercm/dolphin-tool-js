@@ -23,7 +23,7 @@ jobs:
           # https://wiki.libsdl.org/SDL2/Installation
           pwd=$(pwd)
           cd $(mktemp -d)
-          git clone https://github.com/libsdl-org/SDL
+          git clone https://github.com/libsdl-org/SDL .
           git checkout release-2.30.6
           cd SDL
           mkdir build
