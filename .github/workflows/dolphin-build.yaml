@@ -77,6 +77,7 @@ jobs:
             strip dolphin-tool
             ls -al dolphin-tool
       - run: |
+          ls -al
           file build/Binaries/dolphin-tool
       - name: Rename binary
         run: |
@@ -108,10 +109,10 @@ jobs:
           submodules: 'recursive'
       - name: Build
         run: |
-          brew install qt@5
+          brew install qt@6
 
           # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
-          export Qt5_DIR=/opt/homebrew/opt/qt@5/lib/cmake/Qt5
+          export Qt5_DIR=/opt/homebrew/opt/qt@6/lib/cmake/Qt6
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
