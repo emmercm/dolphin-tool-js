@@ -46,6 +46,7 @@ jobs:
             --volume ${{ github.workspace }}:/build
             --workdir /build
           run: |
+            apt-get update
             apt-get install -y build-essential git cmake
 
             # https://wiki.libsdl.org/SDL2/Installation
