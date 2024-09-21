@@ -20,6 +20,8 @@ jobs:
           ref: ${{ env.DOLPHIN_REF }}
           submodules: true
       - run: |
+          sudo apt-get update
+          sudo apt-get install -y xi
           cmake . -DLINUX_LOCAL_DEV=true
           make -j $(nproc)
 
