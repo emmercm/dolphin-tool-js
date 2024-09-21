@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: mamedev/mame
+          repository: dolphin-emu/dolphin
           ref: ${{ env.DOLPHIN_REF }}
           submodules: true
       - run: |
