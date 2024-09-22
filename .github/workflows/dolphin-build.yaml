@@ -76,10 +76,10 @@ jobs:
             ls -al
             strip dolphin-tool
             ls -al dolphin-tool
-      - run: sudo chown "${USER:=$(/usr/bin/id -run)}:$USER" *
-      - run: |
-          ls -al
-          file build/Binaries/dolphin-tool
+            
+            file build/Binaries/dolphin-tool
+      # Fix 'root' owning the 'build/' directory
+      - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
@@ -117,17 +117,17 @@ jobs:
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
-          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
+          #cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
+          cmake ..
           make "-j$(sysctl -n hw.physicalcpu)"
 
           cd Binaries/
+          ls -al
+          strip dolphin-tool
+          ls -al dolphin-tool
+
           file dolphin-tool
           otool -L dolphin-tool
-      - name: Strip binary
-        run: |
-          ls -al build/Binaries/dolphin-tool
-          strip build/Binaries/dolphin-tool
-          ls -al build/Binaries/dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
