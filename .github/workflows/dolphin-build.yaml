@@ -24,9 +24,9 @@ jobs:
           - docker_image: ubuntu:latest
             docker_arch: linux/amd64
             nodejs_arch: x64
-          - docker_image: ubuntu:latest
-            docker_arch: linux/arm/v7
-            nodejs_arch: arm
+          #- docker_image: ubuntu:latest
+          #  docker_arch: linux/arm/v7
+          #  nodejs_arch: arm
           - docker_image: ubuntu:latest
             docker_arch: linux/arm64/v8
             nodejs_arch: arm64
@@ -118,8 +118,7 @@ jobs:
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
-          #cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
-          cmake .. -DMACOS_CODE_SIGNING=false
+          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
           make "-j$(sysctl -n hw.physicalcpu)"
 
           cd Binaries/
