@@ -76,6 +76,7 @@ jobs:
             ls -al
             strip dolphin-tool
             ls -al dolphin-tool
+      - run: sudo chown "${USER:=$(/usr/bin/id -run)}:$USER" *
       - run: |
           ls -al
           file build/Binaries/dolphin-tool
@@ -116,7 +117,7 @@ jobs:
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
-          cmake ..
+          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
           make "-j$(sysctl -n hw.physicalcpu)"
 
           cd Binaries/
