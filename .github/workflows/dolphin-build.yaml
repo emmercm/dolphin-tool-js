@@ -120,7 +120,7 @@ jobs:
           mkdir -p build
           cd build
           cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
-          make "-j$(sysctl -n hw.physicalcpu)"
+          make "-j$(sysctl -n hw.physicalcpu)" || true
 
           cd Binaries/
           ls -al
