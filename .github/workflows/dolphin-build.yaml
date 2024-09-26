@@ -39,7 +39,8 @@ jobs:
           ref: ${{ env.DOLPHIN_REF }}
           submodules: 'recursive'
       - uses: docker/setup-qemu-action@v3
-      - uses: addnab/docker-run-action@v3
+      - name: Build
+        uses: addnab/docker-run-action@v3
         with:
           image: ${{ matrix.docker_image }}
           shell: bash
@@ -74,10 +75,10 @@ jobs:
             touch Binaries/portable.txt
 
             cd Binaries/
-            ls -al
+            ls -al dolphin-tool
             strip dolphin-tool
             ls -al dolphin-tool
-            
+
             apt-get install -y file
             file build/Binaries/dolphin-tool
       # Fix 'root' owning the 'build/' directory
@@ -123,7 +124,7 @@ jobs:
           make "-j$(sysctl -n hw.physicalcpu)" || true
 
           cd Binaries/
-          ls -al
+          ls -al dolphin-tool
           strip dolphin-tool
           ls -al dolphin-tool
 
