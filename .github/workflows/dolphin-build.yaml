@@ -161,4 +161,4 @@ jobs:
       - name: Build
         run: |
           msbuild Source/dolphin-emu.sln -maxcpucount /property:Configuration=Release "/property:Platform=${{ matrix.platform }}"
-          cmd /r dir /q
+          cmd /r dir /q Build\*\Release\Dolphin\bin
