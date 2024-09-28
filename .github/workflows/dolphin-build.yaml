@@ -162,3 +162,13 @@ jobs:
         run: |
           msbuild Source/dolphin-emu.sln -maxcpucount /property:Configuration=Release "/property:Platform=${{ matrix.platform }}"
           Get-ChildItem -Path Binary\* -Recurse -Force
+      - name: Rename binary
+        run: |
+          $Dir = "artifacts\packages\dolphin-tool-win32-${{ matrix.nodejs_arch }}"
+          mkdir "$Dir"
+          mv Binary\*\DolphinTool.exe "$Dir\DolphinTool.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
+          path: artifacts/packages/**/DolphinTool.exe
+          if-no-files-found: error
