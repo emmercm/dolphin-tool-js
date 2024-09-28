@@ -161,4 +161,4 @@ jobs:
       - name: Build
         run: |
           msbuild Source/dolphin-emu.sln -maxcpucount /property:Configuration=Release "/property:Platform=${{ matrix.platform }}"
-          Get-ChildItem -Path Binary\* -Recurse
+          Get-ChildItem -Path Binary\* -Recurse -Force
