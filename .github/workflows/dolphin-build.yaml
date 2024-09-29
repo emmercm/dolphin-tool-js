@@ -215,9 +215,9 @@ jobs:
   git-update:
     needs:
       - get-version
-#      - build-linux
-#      - build-macos
-#      - build-windows
+      - build-linux
+      - build-macos
+      - build-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
