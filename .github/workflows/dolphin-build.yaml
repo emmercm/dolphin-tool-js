@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       dolphin_ref:
-        description: 'Dolphin GitHub branch, tag, or SHA (e.g. "master")'
+        description: 'Dolphin GitHub version tag (e.g. "2409")'
         required: true
         type: string
       sdl2_ref:
@@ -182,6 +182,7 @@ jobs:
   build-windows:
     name: build-windows ${{ matrix.nodejs_arch }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: x64
