@@ -215,9 +215,9 @@ jobs:
   git-update:
     needs:
       - get-version
-      - build-linux
-      - build-macos
-      - build-windows
+#      - build-linux
+#      - build-macos
+#      - build-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -227,6 +227,8 @@ jobs:
       - uses: actions/setup-node@v4
       - id: bump-and-commit
         run: |
+          ls -alR
+
           package_name=$(jq --raw-output '.name' packages/dolphin-tool/package.json)
           major_version=$((npm show "${package_name}" --json --quiet || echo '{"versions":["0.0.0"]}') | jq --raw-output '.versions | .[]' | sed 's/\.[0-9]*//g' | sort | tail -1)
           # shellcheck disable=SC2001
@@ -242,8 +244,8 @@ jobs:
           echo "${new_version}"
           # lerna version "${new_version}" --yes || true
 
-          chmod +x packages/dolphin-tool-*-*/dolphin*
           ls -alR
+          chmod +x packages/dolphin-tool-*-*/dolphin*
           # git add package*.json lerna.json packages
           git add packages
 
