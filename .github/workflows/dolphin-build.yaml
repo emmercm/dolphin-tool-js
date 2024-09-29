@@ -50,166 +50,166 @@ jobs:
           echo "major=$(grep 'set(DOLPHIN_VERSION_MAJOR' CMake/ScmRevGen.cmake | sed -E 's/.*"([0-9]+)".*/\1/')" >> "${GITHUB_OUTPUT}"
           echo "minor=$(grep 'set(DOLPHIN_VERSION_MINOR' CMake/ScmRevGen.cmake | sed -E 's/.*"([0-9]+)".*/\1/')" >> "${GITHUB_OUTPUT}"
 
-#  build-linux:
-#    name: build-linux ${{ matrix.nodejs_arch }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        include:
-#          #- docker_image: i386/ubuntu:latest
-#          #  docker_arch: linux/386
-#          #  nodejs_arch: ia32
-#          - docker_image: ubuntu:latest
-#            docker_arch: linux/amd64
-#            nodejs_arch: x64
-#          - docker_image: ubuntu:latest
-#            docker_arch: linux/arm/v7
-#            nodejs_arch: arm
-#            cmake_opts: -DENABLE_GENERIC=true
-#          - docker_image: ubuntu:latest
-#            docker_arch: linux/arm64/v8
-#            nodejs_arch: arm64
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          repository: dolphin-emu/dolphin
-#          ref: ${{ env.DOLPHIN_REF }}
-#          submodules: 'recursive'
-#      - uses: docker/setup-qemu-action@v3
-#      - name: Build
-#        uses: addnab/docker-run-action@v3
-#        with:
-#          image: ${{ matrix.docker_image }}
-#          shell: bash
-#          options: |
-#            --platform ${{ matrix.docker_arch }}
-#            --volume ${{ github.workspace }}:/build
-#            --workdir /build
-#          run: |
-#            set -euo pipefail
-#
-#            apt-get update
-#            apt-get install -y build-essential git cmake
-#            # https://wiki.libsdl.org/SDL2/Installation
-#            here=$(pwd)
-#            cd $(mktemp -d)
-#            git clone --branch "${{ env.SDL2_REF }}" https://github.com/libsdl-org/SDL.git .
-#            mkdir build
-#            cd build
-#            ../configure
-#            make -j$(nproc)
-#            make install
-#            cd "${here}"
-#
-#            # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
-#            apt-get update
-#            apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
-#            apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
-#            mkdir build && cd build
-#            cmake .. -DLINUX_LOCAL_DEV=true ${{ matrix.cmake_opts }}
-#            make -j$(nproc)
-#            cp -r ../Data/Sys/ Binaries/
-#            touch Binaries/portable.txt
-#
-#            cd Binaries/
-#            ls -al dolphin-tool
-#            strip dolphin-tool
-#            ls -al dolphin-tool
-#
-#            apt-get install -y file
-#            file build/Binaries/dolphin-tool
-#      # Fix 'root' owning the 'build/' directory
-#      - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
-#      - name: Rename binary
-#        run: |
-#          dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
-#          mkdir -p "${dir}"
-#          mv build/Binaries/dolphin-tool "${dir}/"
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-#          path: artifacts/packages/**/dolphin-tool
-#          if-no-files-found: error
-#
-#  build-macos:
-#    name: build-macos ${{ matrix.nodejs_arch }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        include:
-#          - os: macos-13
-#            nodejs_arch: x64
-#          - os: macos-14
-#            nodejs_arch: arm64
-#    runs-on: ${{ matrix.os }}
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          repository: dolphin-emu/dolphin
-#          ref: ${{ env.DOLPHIN_REF }}
-#          submodules: 'recursive'
-#      - name: Build
-#        run: |
-#          brew install qt@6
-#
-#          # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
-#          export Qt5_DIR=/opt/homebrew/opt/qt@6/lib/cmake/Qt6
-#          export PATH=$PATH:$Qt5_DIR
-#          mkdir -p build
-#          cd build
-#          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
-#          make "-j$(sysctl -n hw.physicalcpu)" || true
-#
-#          cd Binaries/
-#          ls -al dolphin-tool
-#          strip dolphin-tool
-#          ls -al dolphin-tool
-#
-#          file dolphin-tool
-#          otool -L dolphin-tool
-#      - name: Rename binary
-#        run: |
-#          dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
-#          mkdir -p "${dir}"
-#          mv build/Binaries/dolphin-tool "${dir}/"
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-#          path: artifacts/packages/**/dolphin-tool
-#          if-no-files-found: error
-#
-#  build-windows:
-#    name: build-windows ${{ matrix.nodejs_arch }}
-#    strategy:
-#      matrix:
-#        include:
-#          - platform: x64
-#            nodejs_arch: x64
-#          - platform: ARM64
-#            nodejs_arch: arm64
-#    runs-on: windows-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          repository: dolphin-emu/dolphin
-#          ref: ${{ env.DOLPHIN_REF }}
-#          submodules: 'recursive'
-#      - uses: microsoft/setup-msbuild@v2
-#      - name: Build
-#        run: |
-#          msbuild Source/dolphin-emu.sln -maxcpucount /property:Configuration=Release "/property:Platform=${{ matrix.platform }}"
-#          Get-ChildItem -Path Binary\* -Recurse -Force
-#      - name: Rename binary
-#        run: |
-#          $Dir = "artifacts\packages\dolphin-tool-win32-${{ matrix.nodejs_arch }}"
-#          mkdir "$Dir"
-#          mv Binary\*\DolphinTool.exe "$Dir\DolphinTool.exe"
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-#          path: artifacts/packages/**/DolphinTool.exe
-#          if-no-files-found: error
+  build-linux:
+    name: build-linux ${{ matrix.nodejs_arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          #- docker_image: i386/ubuntu:latest
+          #  docker_arch: linux/386
+          #  nodejs_arch: ia32
+          - docker_image: ubuntu:latest
+            docker_arch: linux/amd64
+            nodejs_arch: x64
+          - docker_image: ubuntu:latest
+            docker_arch: linux/arm/v7
+            nodejs_arch: arm
+            cmake_opts: -DENABLE_GENERIC=true
+          - docker_image: ubuntu:latest
+            docker_arch: linux/arm64/v8
+            nodejs_arch: arm64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: dolphin-emu/dolphin
+          ref: ${{ env.DOLPHIN_REF }}
+          submodules: 'recursive'
+      - uses: docker/setup-qemu-action@v3
+      - name: Build
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ matrix.docker_image }}
+          shell: bash
+          options: |
+            --platform ${{ matrix.docker_arch }}
+            --volume ${{ github.workspace }}:/build
+            --workdir /build
+          run: |
+            set -euo pipefail
+
+            apt-get update
+            apt-get install -y build-essential git cmake
+            # https://wiki.libsdl.org/SDL2/Installation
+            here=$(pwd)
+            cd $(mktemp -d)
+            git clone --branch "${{ env.SDL2_REF }}" https://github.com/libsdl-org/SDL.git .
+            mkdir build
+            cd build
+            ../configure
+            make -j$(nproc)
+            make install
+            cd "${here}"
+
+            # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
+            apt-get update
+            apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
+            apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
+            mkdir build && cd build
+            cmake .. -DLINUX_LOCAL_DEV=true ${{ matrix.cmake_opts }}
+            make -j$(nproc)
+            cp -r ../Data/Sys/ Binaries/
+            touch Binaries/portable.txt
+
+            cd Binaries/
+            ls -al dolphin-tool
+            strip dolphin-tool
+            ls -al dolphin-tool
+
+            apt-get install -y file
+            file build/Binaries/dolphin-tool
+      # Fix 'root' owning the 'build/' directory
+      - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
+      - name: Rename binary
+        run: |
+          dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
+          mkdir -p "${dir}"
+          mv build/Binaries/dolphin-tool "${dir}/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
+          path: artifacts/packages/**/dolphin-tool
+          if-no-files-found: error
+
+  build-macos:
+    name: build-macos ${{ matrix.nodejs_arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-13
+            nodejs_arch: x64
+          - os: macos-14
+            nodejs_arch: arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: dolphin-emu/dolphin
+          ref: ${{ env.DOLPHIN_REF }}
+          submodules: 'recursive'
+      - name: Build
+        run: |
+          brew install qt@6
+
+          # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
+          export Qt5_DIR=/opt/homebrew/opt/qt@6/lib/cmake/Qt6
+          export PATH=$PATH:$Qt5_DIR
+          mkdir -p build
+          cd build
+          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
+          make "-j$(sysctl -n hw.physicalcpu)" || true
+
+          cd Binaries/
+          ls -al dolphin-tool
+          strip dolphin-tool
+          ls -al dolphin-tool
+
+          file dolphin-tool
+          otool -L dolphin-tool
+      - name: Rename binary
+        run: |
+          dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
+          mkdir -p "${dir}"
+          mv build/Binaries/dolphin-tool "${dir}/"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
+          path: artifacts/packages/**/dolphin-tool
+          if-no-files-found: error
+
+  build-windows:
+    name: build-windows ${{ matrix.nodejs_arch }}
+    strategy:
+      matrix:
+        include:
+          - platform: x64
+            nodejs_arch: x64
+          - platform: ARM64
+            nodejs_arch: arm64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: dolphin-emu/dolphin
+          ref: ${{ env.DOLPHIN_REF }}
+          submodules: 'recursive'
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build
+        run: |
+          msbuild Source/dolphin-emu.sln -maxcpucount /property:Configuration=Release "/property:Platform=${{ matrix.platform }}"
+          Get-ChildItem -Path Binary\* -Recurse -Force
+      - name: Rename binary
+        run: |
+          $Dir = "artifacts\packages\dolphin-tool-win32-${{ matrix.nodejs_arch }}"
+          mkdir "$Dir"
+          mv Binary\*\DolphinTool.exe "$Dir\DolphinTool.exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
+          path: artifacts/packages/**/DolphinTool.exe
+          if-no-files-found: error
 
   git-update:
     needs:
@@ -240,47 +240,48 @@ jobs:
           fi
           echo "${new_version}"
 #          lerna version "${new_version}" --yes || true
-#
-#          chmod +x packages/dolphin-tool-*-*/dolphin*
-#          ls -alR
+
+          chmod +x packages/dolphin-tool-*-*/dolphin*
+          ls -alR
 #          git add package*.json lerna.json packages
-#
-#          USER_EMAIL="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
-#          echo "USER_EMAIL=${USER_EMAIL}" >> "${GITHUB_OUTPUT}"
-#          git config --global user.email "${USER_EMAIL}"
-#
-#          USER_NAME="$(gh api "/users/${GITHUB_ACTOR}" | jq .name -r)"
-#          echo "USER_NAME=${USER_NAME}" >> "${GITHUB_OUTPUT}"
-#          git config --global user.name "${USER_NAME}"
-#
-#          PACKAGE_VERSION="$(jq --raw-output '.version' packages/dolphin-tool/package.json)"
-#          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
-#          git commit -m "v${PACKAGE_VERSION}"
-#
-#          exit 1
-#        env:
-#          GH_TOKEN: ${{ github.token }}
-#      # Create the pull request, and optionally mark it as auto-merge
-#      - id: create-pull-request
-#        uses: peter-evans/create-pull-request@v6
-#        with:
-#          # GitHub won't run workflows off of events from the `github-actions` user
-#          # But also, I want the PR to be created under my name for cosmetic reasons
-#          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-#          author: ${{ steps.bump-and-commit.outputs.USER_NAME }} <${{ steps.bump-and-commit.outputs.USER_EMAIL }}>
-#          branch: ${{ github.actor }}/${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
-#          delete-branch: true
-#          title: v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
-#          assignees: ${{ !inputs.auto-merge && github.repository_owner || '' }}
-#          reviewers: ${{ (!inputs.auto-merge && github.repository_owner != github.actor) && github.repository_owner || '' }}
-#      - if: ${{ steps.create-pull-request.outputs.pull-request-number }}
-#        run: |
-#          {
-#            echo "# v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}"
-#            echo ""
-#            echo "${{ steps.create-pull-request.outputs.pull-request-url }}"
-#          } >> "${GITHUB_STEP_SUMMARY}"
-#      - if: ${{ steps.create-pull-request.outputs.pull-request-number && inputs.auto-merge }}
-#        run: gh pr merge "${{ steps.create-pull-request.outputs.pull-request-number }}" --squash --auto
-#        env:
-#          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          git add packages
+
+          USER_EMAIL="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          echo "USER_EMAIL=${USER_EMAIL}" >> "${GITHUB_OUTPUT}"
+          git config --global user.email "${USER_EMAIL}"
+
+          USER_NAME="$(gh api "/users/${GITHUB_ACTOR}" | jq .name -r)"
+          echo "USER_NAME=${USER_NAME}" >> "${GITHUB_OUTPUT}"
+          git config --global user.name "${USER_NAME}"
+
+          PACKAGE_VERSION="$(jq --raw-output '.version' packages/dolphin-tool/package.json)"
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
+          git commit -m "v${PACKAGE_VERSION}"
+
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # Create the pull request, and optionally mark it as auto-merge
+      - id: create-pull-request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          # GitHub won't run workflows off of events from the `github-actions` user
+          # But also, I want the PR to be created under my name for cosmetic reasons
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          author: ${{ steps.bump-and-commit.outputs.USER_NAME }} <${{ steps.bump-and-commit.outputs.USER_EMAIL }}>
+          branch: ${{ github.actor }}/${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
+          delete-branch: true
+          title: v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
+          assignees: ${{ !inputs.auto-merge && github.repository_owner || '' }}
+          reviewers: ${{ (!inputs.auto-merge && github.repository_owner != github.actor) && github.repository_owner || '' }}
+      - if: ${{ steps.create-pull-request.outputs.pull-request-number }}
+        run: |
+          {
+            echo "# v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}"
+            echo ""
+            echo "${{ steps.create-pull-request.outputs.pull-request-url }}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+      - if: ${{ steps.create-pull-request.outputs.pull-request-number && inputs.auto-merge }}
+        run: gh pr merge "${{ steps.create-pull-request.outputs.pull-request-number }}" --squash --auto
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
