@@ -258,6 +258,7 @@ jobs:
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
           git commit -m "v${PACKAGE_VERSION}"
 
+          git push
           exit 1
         env:
           GH_TOKEN: ${{ github.token }}
