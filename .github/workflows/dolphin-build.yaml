@@ -129,7 +129,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-          path: artifacts/packages/**/dolphin-tool
+          path: artifacts/**/dolphin-tool
           if-no-files-found: error
 
   build-macos:
@@ -176,7 +176,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-          path: artifacts/packages/**/dolphin-tool
+          path: artifacts/**/dolphin-tool
           if-no-files-found: error
 
   build-windows:
@@ -209,7 +209,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
-          path: artifacts/packages/**/DolphinTool.exe
+          path: artifacts/**/DolphinTool.exe
           if-no-files-found: error
 
   git-update:
