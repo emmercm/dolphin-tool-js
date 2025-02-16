@@ -107,7 +107,7 @@ jobs:
             apt-get install -y build-essential git cmake ffmpeg libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libusb-1.0-0-dev libxrandr-dev libxi-dev libpangocairo-1.0-0 qt6-base-private-dev libqt6svg6-dev libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev libcurl4-openssl-dev
             apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
             mkdir build && cd build
-            cmake .. -DLINUX_LOCAL_DEV=true ${{ matrix.cmake_opts }}
+            cmake -DDISTRIBUTOR="${{ github.repositoryUrl }}" -DLINUX_LOCAL_DEV=true ${{ matrix.cmake_opts }} ..
             make -j$(nproc)
             cp -r ../Data/Sys/ Binaries/
             touch Binaries/portable.txt
@@ -162,7 +162,7 @@ jobs:
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
           cd build
-          cmake .. -DSKIP_POSTPROCESS_BUNDLE=true
+          cmake -DDISTRIBUTOR="${{ github.repositoryUrl }}" -DLINUX_LOCAL_DEV=true -DSKIP_POSTPROCESS_BUNDLE=true ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
 
           cd Binaries/
