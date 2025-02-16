@@ -100,6 +100,7 @@ jobs:
               -DENABLE_CUBEB=OFF \
               -DENABLE_LLVM=OFF \
               -DENABLE_TESTS=OFF \
+              -DENABLE_VULKAN=OFF \
               -DUSE_MGBA=OFF \
               -DENABLE_AUTOUPDATE=OFF \
               -DENCODE_FRAMEDUMPS=OFF \
@@ -169,6 +170,7 @@ jobs:
             -DENABLE_CUBEB=OFF \
             -DENABLE_LLVM=OFF \
             -DENABLE_TESTS=OFF \
+            -DENABLE_VULKAN=OFF \
             -DUSE_MGBA=OFF \
             -DENABLE_AUTOUPDATE=OFF \
             -DENCODE_FRAMEDUMPS=OFF \
