@@ -95,6 +95,7 @@ jobs:
               -DENABLE_CLI_TOOL=ON \
               -DUSE_SYSTEM_LIBS=OFF \
               -DLAZY_LOAD_LIBS=OFF \
+              -DENABLE_QT=OFF \
               -DENABLE_ALSA=OFF \
               -DENABLE_PULSEAUDIO=OFF \
               -DENABLE_CUBEB=OFF \
@@ -167,6 +168,7 @@ jobs:
             -DENABLE_CLI_TOOL=ON \
             -DUSE_SYSTEM_LIBS=OFF \
             -DLAZY_LOAD_LIBS=OFF \
+            -DENABLE_QT=OFF \
             -DENABLE_ALSA=OFF \
             -DENABLE_PULSEAUDIO=OFF \
             -DENABLE_CUBEB=OFF \
