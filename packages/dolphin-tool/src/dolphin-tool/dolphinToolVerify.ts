@@ -23,14 +23,6 @@ export default {
       ...(options.digestAlgorithm === undefined ? [] : ['-a', options.digestAlgorithm]),
     ], options);
 
-    // Try to detect failures, and then retry them automatically
-    if (!output.trim() && attempt <= 3) {
-      await new Promise((resolve) => {
-        setTimeout(resolve, Math.random() * (2 ** (attempt - 1) * 20));
-      });
-      return this.verify(options, attempt + 1);
-    }
-
     const digests: VerifyDigests = {};
     for (const line of output.split(/\r?\n/)) {
       if (line.match(/^crc32\W/i) !== null || options.digestAlgorithm === DigestAlgorithm.CRC32) {
@@ -46,6 +38,15 @@ export default {
         digests.rchash = line.match(/[\da-f]{32}/i)?.at(0);
       }
     }
+
+    // Try to detect failures, and then retry them automatically
+    if (Object.values(digests).filter((value) => value !== undefined).length === 0) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, Math.random() * (2 ** (attempt - 1) * 20));
+      });
+      return this.verify(options, attempt + 1);
+    }
+
     return digests;
   },
 };
