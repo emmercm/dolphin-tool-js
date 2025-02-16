@@ -94,6 +94,7 @@ jobs:
               -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
               -DENABLE_CLI_TOOL=ON \
               -DUSE_SYSTEM_LIBS=OFF \
+              -DLAZY_LOAD_LIBS=OFF \
               -DENABLE_TESTS=OFF \
               -DENABLE_AUTOUPDATE=OFF \
               -Wno-dev \
@@ -156,6 +157,7 @@ jobs:
             -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
             -DENABLE_CLI_TOOL=ON \
             -DUSE_SYSTEM_LIBS=OFF \
+            -DLAZY_LOAD_LIBS=OFF \
             -DENABLE_TESTS=OFF \
             -DENABLE_AUTOUPDATE=OFF \
             -Wno-dev \
