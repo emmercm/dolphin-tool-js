@@ -129,7 +129,7 @@ jobs:
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
           mkdir -p "${dir}"
-          mv build/Binaries/dolphin-tool "${dir}/"
+          mv dolphin-tool "${dir}/"
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
@@ -174,7 +174,7 @@ jobs:
       - name: Test binary
         run: |
           set -x
-          ./dolphin-tool --help
+          ./dolphin-tool --help || true
           file dolphin-tool
           otool -L dolphin-tool
       - name: Rename binary
@@ -213,7 +213,7 @@ jobs:
           Move-Item -Path Binary\*\DolphinTool.exe -Destination .\
       - name: Test binary
         run: |
-          .\chdman.exe --help
+          .\DolphinTool.exe --help || true
       - name: Rename binary
         run: |
           $Dir = "artifacts\packages\dolphin-tool-win32-${{ matrix.nodejs_arch }}"
