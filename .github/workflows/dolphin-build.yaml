@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
     inputs:
       dolphin_ref:
-        description: 'Dolphin GitHub version tag (e.g. "2409")'
+        description: 'Dolphin GitHub version tag (e.g. "2412")'
         required: true
         type: string
       sdl2_ref:
-        description: 'SDL2 GitHub branch, tag, or SHA (e.g. "release-2.30.6")'
+        description: 'SDL2 GitHub branch, tag, or SHA (e.g. "release-2.30.9")'
         required: false
         type: string
       auto-merge:
@@ -30,8 +30,8 @@ permissions:
   contents: write
 
 env:
-  DOLPHIN_REF: ${{ inputs.dolphin_ref || 'master' }}
-  SDL2_REF: ${{ inputs.sdl2_ref || 'release-2.30.6' }}
+  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2412' }}
+  SDL2_REF: ${{ inputs.sdl2_ref || 'release-2.30.9' }}
 
 jobs:
   get-version:
