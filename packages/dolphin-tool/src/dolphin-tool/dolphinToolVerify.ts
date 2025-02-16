@@ -23,6 +23,21 @@ export default {
       ...(options.digestAlgorithm === undefined ? [] : ['-a', options.digestAlgorithm]),
     ], options);
 
-    return {};
+    const digests: VerifyDigests = {};
+    for (const line of output.split(/\r?\n/)) {
+      if (line.match(/^crc32\W/i) !== null || options.digestAlgorithm === DigestAlgorithm.CRC32) {
+        digests.crc32 = line.match(/[\da-f]{8}/i)?.at(0);
+      }
+      if (line.match(/^md5\W/i) !== null || options.digestAlgorithm === DigestAlgorithm.MD5) {
+        digests.md5 = line.match(/[\da-f]{32}/i)?.at(0);
+      }
+      if (line.match(/^sha1\W/i) !== null || options.digestAlgorithm === DigestAlgorithm.SHA1) {
+        digests.sha1 = line.match(/[\da-f]{40}/i)?.at(0);
+      }
+      if (line.match(/^rchash\W/i) !== null || options.digestAlgorithm === DigestAlgorithm.RCHASH) {
+        digests.rchash = line.match(/[\da-f]{32}/i)?.at(0);
+      }
+    }
+    return digests;
   },
 };

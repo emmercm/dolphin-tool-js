@@ -27,6 +27,7 @@ describe.each([
   path.join('test', 'fixtures', 'gcz', '6144.gcz'),
   path.join('test', 'fixtures', 'iso', '2048.iso'),
   path.join('test', 'fixtures', 'iso', '16384.iso'),
+  path.join('test', 'fixtures', 'iso', 'GameCube-240pSuite-1.19.iso'),
   path.join('test', 'fixtures', 'rvz', '8192.rvz'),
   path.join('test', 'fixtures', 'rvz', '10240.rvz'),
   path.join('test', 'fixtures', 'wia', '12288.wia'),
