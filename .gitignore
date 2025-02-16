@@ -105,6 +105,7 @@ dist
 
 
 # Custom
+.nx/
 packages/*/dist/
 packages/*/test/fixtures/*/build/
 packages/*/junit.xml
