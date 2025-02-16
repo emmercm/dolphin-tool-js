@@ -87,7 +87,7 @@ jobs:
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
-            apt-get install -y build-essential git cmake libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libevdev-dev libxrandr-dev libxi-dev qt6-base-private-dev libqt6svg6-dev libpangocairo-1.0-0 libbluetooth-dev libasound2-dev libpulse-dev libgl1-mesa-dev
+            apt-get install -y build-essential git cmake libevdev-dev libxrandr-dev libxi-dev qt6-base-private-dev libqt6svg6-dev libpangocairo-1.0-0 libasound2-dev libpulse-dev libgl1-mesa-dev
             apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
             mkdir build && cd build
             cmake \
@@ -97,6 +97,7 @@ jobs:
               -DLAZY_LOAD_LIBS=OFF \
               -DENABLE_TESTS=OFF \
               -DENABLE_AUTOUPDATE=OFF \
+              -DENCODE_FRAMEDUMPS=OFF \
               -Wno-dev \
               ${{ matrix.cmake_opts }} \
               `# Linux options` \
@@ -160,6 +161,7 @@ jobs:
             -DLAZY_LOAD_LIBS=OFF \
             -DENABLE_TESTS=OFF \
             -DENABLE_AUTOUPDATE=OFF \
+            -DENCODE_FRAMEDUMPS=OFF \
             -Wno-dev \
             `# macOS options` \
             -DSKIP_POSTPROCESS_BUNDLE=true \
