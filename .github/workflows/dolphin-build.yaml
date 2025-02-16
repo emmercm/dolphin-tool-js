@@ -109,10 +109,12 @@ jobs:
             mkdir build && cd build
             cmake \
               -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
+              -DENABLE_CLI_TOOL=ON \
+              -DUSE_SYSTEM_LIBS=OFF \
+              -DENABLE_TESTS=OFF \
+              -DENABLE_AUTOUPDATE=OFF \
               -Wno-dev \
               ${{ matrix.cmake_opts }} \
-              `# Unix options` \
-              -DLINUX_LOCAL_DEV=true \
               ..
             make -j$(nproc)
             cp -r ../Data/Sys/ Binaries/
@@ -170,13 +172,16 @@ jobs:
           cd build
           cmake \
             -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
-            -DENABLE_TESTS=off \
-            -DENABLE_AUTOUPDATE=off \
+            -DENABLE_CLI_TOOL=ON \
+            -DUSE_SYSTEM_LIBS=OFF \
+            -DENABLE_TESTS=OFF \
+            -DENABLE_AUTOUPDATE=OFF \
             -Wno-dev \
             `# macOS options` \
             -DSKIP_POSTPROCESS_BUNDLE=true \
-            `# Unix options` \
-            -DLINUX_LOCAL_DEV=true \
+            -DUSE_SYSTEM_ICONV=ON \
+            -DUSE_SYSTEM_BZIP2=ON \
+            -DDUSE_SYSTEM_CURL=ON \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
 
@@ -255,6 +260,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Delete old macoS .dylibs
+        run: |
+          rm packages/*-darwin-*/*.dylib
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
