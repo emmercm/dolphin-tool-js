@@ -105,6 +105,7 @@ jobs:
               -DUSE_MGBA=OFF \
               -DENABLE_AUTOUPDATE=OFF \
               -DENCODE_FRAMEDUMPS=OFF \
+              -DENABLE_SDL=OFF \
               -Wno-dev \
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
@@ -184,6 +185,7 @@ jobs:
             -DUSE_MGBA=OFF \
             -DENABLE_AUTOUPDATE=OFF \
             -DENCODE_FRAMEDUMPS=OFF \
+            -DENABLE_SDL=OFF \
             -Wno-dev \
             `# macOS options` \
             -DSKIP_POSTPROCESS_BUNDLE=true \
