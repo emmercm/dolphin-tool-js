@@ -27,7 +27,6 @@ permissions:
 
 env:
   DOLPHIN_REF: ${{ inputs.dolphin_ref || '2412' }}
-  SDL2_REF: ${{ inputs.sdl2_ref || 'release-2.30.9' }}
 
 jobs:
   get-version:
@@ -100,15 +99,7 @@ jobs:
               ${{ matrix.cmake_opts }} \
               ..
             make -j$(nproc)
-            cp -r ../Data/Sys/ Binaries/
-            touch Binaries/portable.txt
-
-            cd Binaries/
-            ls -al dolphin-tool
-            strip dolphin-tool
-            ls -al dolphin-tool
-
-            mv dolphin-tool ../../
+            mv Binaries/dolphin-tool ../
       # Fix 'root' owning the 'build/' directory
       - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
       - name: Test binary
@@ -116,6 +107,11 @@ jobs:
           set -x
           file dolphin-tool
           readelf -d dolphin-tool | grep NEEDED
+      - name: Strip binary
+        run: |
+          ls -al dolphin-tool
+          strip dolphin-tool
+          ls -al dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
@@ -149,6 +145,7 @@ jobs:
           brew install qt@6
 
           # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
+          # https://github.com/dolphin-emu/dolphin/blob/2412/BuildMacOSUniversalBinary.py
           export Qt5_DIR=/opt/homebrew/opt/qt@6/lib/cmake/Qt6
           export PATH=$PATH:$Qt5_DIR
           mkdir -p build
@@ -167,26 +164,18 @@ jobs:
             -DDUSE_SYSTEM_CURL=ON \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
-
-          cd Binaries/
-          ls -al dolphin-tool
-          strip dolphin-tool
-          ls -al dolphin-tool
-
-          mv dolphin-tool ../../
-      - name: Make portable
-        run: |
-          otool -L dolphin-tool | awk '{print $1}' | grep -E "^$(brew --prefix)" | while read -r file; do
-            cp "${file}" ./
-            install_name_tool -change "${file}" "@executable_path/$(basename "${file}")" dolphin-tool
-          done
-          brew uninstall --ignore-dependencies qt@6
+          mv Binaries/dolphin-tool ../
       - name: Test binary
         run: |
           set -x
           ./dolphin-tool --help || true
           file dolphin-tool
           otool -L dolphin-tool
+      - name: Strip binary
+        run: |
+          ls -al dolphin-tool
+          strip dolphin-tool
+          ls -al dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-darwin-${{ matrix.nodejs_arch }}"
