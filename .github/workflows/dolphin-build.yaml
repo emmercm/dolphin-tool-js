@@ -87,7 +87,7 @@ jobs:
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
-            apt-get install -y build-essential git cmake libevdev-dev libxrandr-dev libxi-dev qt6-base-private-dev libqt6svg6-dev libpangocairo-1.0-0 libasound2-dev libpulse-dev libgl1-mesa-dev
+            apt-get install -y build-essential git cmake libxrandr-dev libxi-dev qt6-base-private-dev libqt6svg6-dev libpangocairo-1.0-0 libgl1-mesa-dev
             apt-get install -y libudev-dev libsystemd-dev || apt-get install -y libeudev-dev
             mkdir build && cd build
             cmake \
@@ -107,6 +107,7 @@ jobs:
               -Wno-dev \
               ${{ matrix.cmake_opts }} \
               `# Linux options` \
+              -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
               ..
             make -j$(nproc)
