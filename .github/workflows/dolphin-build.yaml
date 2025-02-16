@@ -142,6 +142,8 @@ jobs:
           submodules: 'recursive'
       - name: Build
         run: |
+          brew install qt@6
+
           # https://github.com/dolphin-emu/dolphin/wiki/Building-for-macOS
           # https://github.com/dolphin-emu/dolphin/blob/2412/BuildMacOSUniversalBinary.py
           mkdir -p build
