@@ -87,7 +87,7 @@ jobs:
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
-            apt-get install -y build-essential git cmake libxrandr-dev qt6-base-private-dev libqt6svg6-dev libpangocairo-1.0-0 libgl1-mesa-dev
+            apt-get install -y build-essential git cmake libxrandr-dev libpangocairo-1.0-0 libgl1-mesa-dev
             mkdir build && cd build
             cmake \
               -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
