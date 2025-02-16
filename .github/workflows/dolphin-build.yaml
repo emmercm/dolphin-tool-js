@@ -152,7 +152,7 @@ jobs:
         include:
           - os: macos-13
             nodejs_arch: x64
-          - os: macos-14
+          - os: macos-15
             nodejs_arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
