@@ -107,6 +107,7 @@ jobs:
               -Wno-dev \
               ${{ matrix.cmake_opts }} \
               `# Linux options` \
+              -DENABLE_EGL=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
               ..
