@@ -258,7 +258,8 @@ jobs:
           fi
           lerna version "${new_version}" --yes || true
 
-          chmod +x packages/dolphin-tool-*-*/dolphin*
+          chmod +x packages/dolphin-tool-*-*/dolphin-tool
+          chmod +x packages/dolphin-tool-*-*/DolphinTool.exe
           ls -lR
           git add package*.json lerna.json packages
 
