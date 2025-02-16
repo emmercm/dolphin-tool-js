@@ -108,7 +108,7 @@ jobs:
             strip dolphin-tool
             ls -al dolphin-tool
       # Fix 'root' owning the 'build/' directory
-      - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
+      - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" ./*
       - name: Test binary
         run: |
           set -x
