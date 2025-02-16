@@ -177,7 +177,7 @@ jobs:
             cp "${file}" ./
             install_name_tool -change "${file}" "@executable_path/$(basename "${file}")" dolphin-tool
           done
-          brew uninstall --ignore-dependencies sdl2
+          brew uninstall --ignore-dependencies qt@6
       - name: Test binary
         run: |
           set -x
