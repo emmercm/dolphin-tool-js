@@ -11,10 +11,6 @@ on:
         description: 'Dolphin GitHub version tag (e.g. "2412")'
         required: true
         type: string
-      sdl2_ref:
-        description: 'SDL2 GitHub branch, tag, or SHA (e.g. "release-2.30.9")'
-        required: false
-        type: string
       auto-merge:
         description: 'Auto-merge pull request?'
         required: true
@@ -88,19 +84,6 @@ jobs:
             --workdir /build
           run: |
             set -euo pipefail
-
-            apt-get update
-            apt-get install -y build-essential git cmake
-            # https://wiki.libsdl.org/SDL2/Installation
-            here=$(pwd)
-            cd $(mktemp -d)
-            git clone --branch "${{ env.SDL2_REF }}" https://github.com/libsdl-org/SDL.git .
-            mkdir build
-            cd build
-            ../configure
-            make -j$(nproc)
-            make install
-            cd "${here}"
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
