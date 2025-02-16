@@ -11,23 +11,27 @@
 
 ## Supported platforms
 
-| OS      | Architectures                                               | Additional Instructions                                                                              |
-|---------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| Windows | <ul><li>x64</li><li>arm64</li></ul>                         |                                                                                                      |
-| macOS   | <ul><li>arm64 (Apple Silicon)</li><li>x64 (Intel)</li></ul> | [libusb](https://libusb.info/) is required to be installed separately:<pre>brew install libusb</pre> |
-| Linux   | <ul><li>x64</li><li>arm v7</li><li>arm64 v8</li></ul>       |                                                                                                      |
+| OS      | Architectures                                               | Additional Instructions |
+|---------|-------------------------------------------------------------|-------------------------|
+| Windows | <ul><li>x64</li><li>arm64</li></ul>                         |                         |
+| macOS   | <ul><li>arm64 (Apple Silicon)</li><li>x64 (Intel)</li></ul> |                         |
+| Linux   | <ul><li>x64</li><li>arm v7</li><li>arm64 v8</li></ul>       |                         |
 
 ## Running
 
 You can easily run the `dolphin-tool` binary for your OS from the command line like this:
 
 ```shell
-npx dolphin-tool [options..]
+npx dolphin-tool [command] [options..]
 ```
 
 Examples:
 
-TODO
+```shell
+npx dolphin-tool --help
+npx dolphin-tool header -i Image.rvz
+npx dolphin-tool verify -i Image.rvz -a md5
+```
 
 ## Installation
 
@@ -37,7 +41,48 @@ npm install --save dolphin-tool
 
 ## Usage
 
-TODO
+```javascript
+import dolphinTool from 'dolphin-tool';
+
+/**
+ * Create images
+ */
+await dolphinTool.convert({
+  inputFilename: 'image.iso',
+  outputFilename: 'image.rvz',
+  containerFormat: ContainerFormat.RVZ,
+  blockSize: 131_072,
+  compressionMethod: CompressionMethodWiaRvz.ZSTD,
+  compressionLevel: 5,
+});
+console.log(await dolphinTool.header({ inputFilename: 'image.rvz' }));
+// { blockSize: 131072, compressionMethod: 'zstd', compressionLevel: 5, ... }
+
+
+/**
+ * Verify images
+ */
+const digests = await dolphinTool.verify({
+  inputFilename: 'image.gcz',
+  digestAlgorithm: DigestAlgorithm.MD5,
+});
+console.log(digests.md5);
+// 0d6e1901...
+
+
+/**
+ * Extract files
+ */
+const files = await dolphinTool.listFiles({
+  inputFilename: 'image.wia',
+});
+console.log(files);
+// [ ... ]
+await dolphinTool.extract({
+  inputFilename: 'image.wia',
+  outputFolder: './'
+});
+```
 
 ## License
 
