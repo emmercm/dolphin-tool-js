@@ -74,9 +74,10 @@ jobs:
 
       # Test running
       - run: |
-          npm start --workspace=packages/dolphin-tool -- help
-          npm start --workspace=packages/dolphin-tool -- createcd --input test/fixtures/cue/multiple.cue --output multiple.chd --hunksize 14688
-          npm start --workspace=packages/dolphin-tool -- info --input multiple.chd
+          npm start --workspace=packages/dolphin-tool -- --help
+          npm start --workspace=packages/dolphin-tool -- convert -i test/fixtures/iso/GameCube-240pSuite-1.19.iso -o GameCube-240pSuite-1.19.rvz -f rvz -c zstd -b 131072 -l 5
+          npm start --workspace=packages/dolphin-tool -- verify -i GameCube-240pSuite-1.19.rvz
+          npm start --workspace=packages/dolphin-tool -- header -i GameCube-240pSuite-1.19.rvz
 
       # Test building
       - run: npm run build
