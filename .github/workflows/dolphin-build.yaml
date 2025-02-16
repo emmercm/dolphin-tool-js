@@ -100,6 +100,12 @@ jobs:
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
+            cd ../
+            
+            apt-get install -y binutils
+            ls -al dolphin-tool
+            strip dolphin-tool
+            ls -al dolphin-tool
       # Fix 'root' owning the 'build/' directory
       - run: sudo chown -R "${USER:=$(/usr/bin/id -run)}:$USER" *
       - name: Test binary
@@ -107,11 +113,6 @@ jobs:
           set -x
           file dolphin-tool
           readelf -d dolphin-tool | grep NEEDED
-      - name: Strip binary
-        run: |
-          ls -al dolphin-tool
-          strip dolphin-tool
-          ls -al dolphin-tool
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
@@ -163,6 +164,7 @@ jobs:
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
           mv Binaries/dolphin-tool ../
+          cd ../
       - name: Test binary
         run: |
           set -x
