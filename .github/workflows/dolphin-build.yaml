@@ -96,6 +96,7 @@ jobs:
               -DUSE_SYSTEM_LIBS=OFF \
               -DLAZY_LOAD_LIBS=OFF \
               -DENABLE_TESTS=OFF \
+              -DUSE_MGBA=OFF \
               -DENABLE_AUTOUPDATE=OFF \
               -DENCODE_FRAMEDUMPS=OFF \
               -Wno-dev \
@@ -160,6 +161,7 @@ jobs:
             -DUSE_SYSTEM_LIBS=OFF \
             -DLAZY_LOAD_LIBS=OFF \
             -DENABLE_TESTS=OFF \
+            -DUSE_MGBA=OFF \
             -DENABLE_AUTOUPDATE=OFF \
             -DENCODE_FRAMEDUMPS=OFF \
             -Wno-dev \
