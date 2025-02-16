@@ -116,6 +116,10 @@ jobs:
             mv Binaries/dolphin-tool ../
             cd ../
 
+            # Test binary
+            ./dolphin-tool --help || true
+
+            # Strip binary
             apt-get install -y binutils
             ls -al dolphin-tool
             strip dolphin-tool
