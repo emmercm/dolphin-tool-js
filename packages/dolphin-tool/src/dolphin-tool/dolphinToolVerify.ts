@@ -15,13 +15,21 @@ export interface VerifyDigests {
 }
 
 export default {
-  async verify(options: VerifyOptions): Promise<VerifyDigests> {
+  async verify(options: VerifyOptions, attempt = 1): Promise<VerifyDigests> {
     const output = await DolphinToolBin.run([
       'verify',
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
       '-i', options.inputFilename,
       ...(options.digestAlgorithm === undefined ? [] : ['-a', options.digestAlgorithm]),
     ], options);
+
+    // Try to detect failures, and then retry them automatically
+    if (!output.trim() && attempt <= 3) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, Math.random() * (2 ** (attempt - 1) * 20));
+      });
+      return this.verify(options, attempt + 1);
+    }
 
     const digests: VerifyDigests = {};
     for (const line of output.split(/\r?\n/)) {

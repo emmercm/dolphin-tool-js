@@ -20,8 +20,8 @@ export interface DolphinToolHeader {
 }
 
 export default {
-  async header(options: DolphinToolHeaderOptions): Promise<DolphinToolHeader> {
-    const json = await DolphinToolBin.run([
+  async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<DolphinToolHeader> {
+    const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,
       '-j',
@@ -29,7 +29,16 @@ export default {
       '-c',
       '-l',
     ], options);
-    const object = JSON.parse(json);
+
+    // Try to detect failures, and then retry them automatically
+    if (!output.trim() && attempt <= 3) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, Math.random() * (2 ** (attempt - 1) * 20));
+      });
+      return this.header(options, attempt + 1);
+    }
+
+    const object = JSON.parse(output);
 
     let compressionMethod: CompressionMethod = CompressionMethodWiaRvz.NONE;
     if (typeof object.compression_method === 'string') {
