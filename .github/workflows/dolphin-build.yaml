@@ -5,6 +5,8 @@
 name: Dolphin Build
 
 on:
+  # TODO(cemmer): DEBUG!
+  push:
   workflow_dispatch:
     inputs:
       dolphin_ref:
@@ -16,7 +18,6 @@ on:
         required: true
         type: boolean
         default: true
-  push:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -101,7 +102,7 @@ jobs:
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
             cd ../
-            
+
             apt-get install -y binutils
             ls -al dolphin-tool
             strip dolphin-tool
@@ -241,13 +242,11 @@ jobs:
       - uses: actions/setup-node@v4
       - id: bump-and-commit
         run: |
-          ls -alR
-
           package_name=$(jq --raw-output '.name' packages/dolphin-tool/package.json)
-          major_version=$((npm show "${package_name}" --json --quiet || echo '{"versions":["0.0.0"]}') | jq --raw-output '.versions | .[]' | sed 's/\.[0-9]*//g' | sort | tail -1)
+          major_version=$(npm show "${package_name}" --json | jq --raw-output '.versions | .[]' | sed 's/\.[0-9]*//g' | sort | tail -1)
           # shellcheck disable=SC2001
           minor_version=${{ needs.get-version.outputs.major }}
-          previous_version=$((npm show "${package_name}" --json --quiet || echo '{"versions":["0.0.0"]}') | jq --raw-output '.versions | .[]' | grep "${minor_version}" | tail -1)
+          previous_version=$(npm show "${package_name}" --json | jq --raw-output '.versions | .[]' | grep "${minor_version}" | tail -1)
           if [[ "${previous_version}" != "" ]]; then
             # shellcheck disable=SC2001
             new_patch_version=$(echo "$(echo "${previous_version}" | sed 's/[0-9]*\.//g') + 1" | bc)
@@ -255,13 +254,11 @@ jobs:
           else
             new_version="${major_version}.${minor_version}.0"
           fi
-          echo "${new_version}"
-          # lerna version "${new_version}" --yes || true
+          lerna version "${new_version}" --yes || true
 
-          ls -alR
           chmod +x packages/dolphin-tool-*-*/dolphin*
-          # git add package*.json lerna.json packages
-          git add packages
+          ls -lR
+          git add package*.json lerna.json packages
 
           USER_EMAIL="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
           echo "USER_EMAIL=${USER_EMAIL}" >> "${GITHUB_OUTPUT}"
@@ -274,9 +271,6 @@ jobs:
           PACKAGE_VERSION="$(jq --raw-output '.version' packages/dolphin-tool/package.json)"
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
           git commit -m "v${PACKAGE_VERSION}"
-
-          git push
-          exit 1
         env:
           GH_TOKEN: ${{ github.token }}
       # Create the pull request, and optionally mark it as auto-merge
