@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { DigestAlgorithm } from './common.js';
 
@@ -16,6 +17,7 @@ export interface VerifyDigests {
 
 export default {
   async verify(options: VerifyOptions, attempt = 1): Promise<VerifyDigests> {
+    console.log('exists?', fs.existsSync(options.inputFilename));
     const output = await DolphinToolBin.run([
       'verify',
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),

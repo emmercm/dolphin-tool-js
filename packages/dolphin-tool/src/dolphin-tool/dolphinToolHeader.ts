@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethod, CompressionMethodGcz, CompressionMethodWiaRvz } from './common.js';
 
@@ -21,6 +22,7 @@ export interface DolphinToolHeader {
 
 export default {
   async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<DolphinToolHeader> {
+    console.log('exists?', fs.existsSync(options.inputFilename));
     const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,

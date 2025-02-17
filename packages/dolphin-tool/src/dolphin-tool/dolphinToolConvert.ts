@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethodWiaRvz, ContainerFormat } from './common.js';
 
@@ -14,6 +15,7 @@ export interface CreateOptions extends DolphinToolRunOptions {
 
 export default {
   async convert(options: CreateOptions): Promise<void> {
+    console.log('exists?', fs.existsSync(options.inputFilename));
     await DolphinToolBin.run([
       'convert',
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
