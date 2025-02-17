@@ -22,7 +22,6 @@ export interface DolphinToolHeader {
 
 export default {
   async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<DolphinToolHeader> {
-    console.log('exists?', fs.existsSync(options.inputFilename), options.inputFilename);
     const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,

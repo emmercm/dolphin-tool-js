@@ -15,7 +15,6 @@ export interface CreateOptions extends DolphinToolRunOptions {
 
 export default {
   async convert(options: CreateOptions): Promise<void> {
-    console.log('exists?', fs.existsSync(options.inputFilename), options.inputFilename);
     await DolphinToolBin.run([
       'convert',
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
