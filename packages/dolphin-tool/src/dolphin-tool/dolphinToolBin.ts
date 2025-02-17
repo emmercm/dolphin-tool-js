@@ -74,7 +74,7 @@ export default class DolphinToolBin {
       const chunks: Buffer[] = [];
 
       const timeout = setTimeout(() => {
-        console.log('TIMEOUT!', Buffer.concat(chunks).toString().trim());
+        console.log('TIMEOUT!', proc.exitCode, arguments_, Buffer.concat(chunks).toString().trim());
       }, 2000);
 
       proc.stdout.on('data', (chunk) => {
