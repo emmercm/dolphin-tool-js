@@ -14,11 +14,6 @@ on:
         description: 'Git branch, tag, or SHA'
         required: true
         type: string
-      skip-change-check:
-        description: 'Skip checking if version has changed?'
-        required: true
-        type: boolean
-        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.ref || github.ref }}
@@ -44,7 +39,6 @@ jobs:
 
       # Check to see if the package.json version has changed
       - id: check
-        if: inputs.skip-change-check == false
         uses: EndBug/version-check@v2
         with:
           file-name: packages/dolphin-tool/package.json
@@ -55,13 +49,13 @@ jobs:
           static-checking: ${{ github.event_name == 'workflow_dispatch' && 'localIsNew' || '' }}
           file-url: ${{ github.event_name == 'workflow_dispatch' && 'https://unpkg.com/dolphin-tool/package.json' || '' }}
 
-      - if: steps.check.outputs.changed == 'true' || inputs.skip-change-check
+      - if: steps.check.outputs.changed == 'true'
         uses: volta-cli/action@v4
-      - if: steps.check.outputs.changed == 'true' || inputs.skip-change-check
+      - if: steps.check.outputs.changed == 'true'
         run: npm ci --force
 
       # Generate the release's markdown template
-      - if: steps.check.outputs.changed == 'true' || inputs.skip-change-check
+      - if: steps.check.outputs.changed == 'true'
         id: auto-changelog
         run: |
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -74,7 +68,7 @@ jobs:
           } >> "${GITHUB_OUTPUT}"
 
       # Create/update the draft release
-      - if: steps.check.outputs.changed == 'true' || inputs.skip-change-check
+      - if: steps.check.outputs.changed == 'true'
         id: release-drafter
         uses: release-drafter/release-drafter@v6
         with:
