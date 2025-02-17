@@ -67,7 +67,7 @@ jobs:
       - run: npm ci --force
 
       # Test the source files
-      - run: npm run test:unit ${{ startsWith(matrix.os, 'windows') && '--runInBand' || '' }}
+      - run: npm run test:unit
 
       # Test running
       - run: |
