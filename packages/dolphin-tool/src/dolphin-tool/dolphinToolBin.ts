@@ -2,7 +2,6 @@ import which from 'which';
 import util from 'node:util';
 import fs from 'node:fs';
 import * as child_process from 'node:child_process';
-import { Mutex } from 'async-mutex';
 
 export interface DolphinToolRunOptions {
   binaryPreference?: DolphinToolBinaryPreference
@@ -18,8 +17,6 @@ export enum DolphinToolBinaryPreference {
  * Code to find and interact with the `dolphin-tool` binary.
  */
 export default class DolphinToolBin {
-  private static readonly MUTEX = new Mutex();
-
   private static DOLPHIN_TOOL_BIN: string | undefined;
 
   private static async getBinPath(
@@ -73,19 +70,6 @@ export default class DolphinToolBin {
       throw new Error('dolphin-tool not found');
     }
 
-    if (process.platform === 'win32') {
-      return this.MUTEX.runExclusive(
-        async () => this.runPromise(dolphinToolBin, arguments_, options),
-      );
-    }
-    return this.runPromise(dolphinToolBin, arguments_, options);
-  }
-
-  private static async runPromise(
-    dolphinToolBin: string,
-    arguments_: string[],
-    options?: DolphinToolRunOptions,
-  ): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       const proc = child_process.spawn(dolphinToolBin, arguments_, { windowsHide: true });
 

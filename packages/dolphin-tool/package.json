@@ -55,8 +55,7 @@
     "postpack": "rm ./LICENSE ./README.md"
   },
   "dependencies": {
-    "which": "^4.0.0",
-    "async-mutex": "^0.5.0"
+    "which": "^4.0.0"
   },
   "optionalDependencies": {
     "@emmercm/dolphin-tool-darwin-arm64": "^0.2412.0",
