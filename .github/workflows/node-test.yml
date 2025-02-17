@@ -1,0 +1,94 @@
+name: Node.js Test
+
+on:
+  pull_request:
+    types:
+      # - edited  # PR's base branch was changed
+      - opened
+      - reopened
+      - synchronize  # PR's branch was edited (i.e. new commits)
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  path-filter:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      changes: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            changes:
+              - '.github/workflows/node-test.yml'
+              - 'packages/*/src/**'
+              - 'packages/*/test/**'
+              - 'packages/dolphin-tool-*-*/**'
+              - '*'
+
+  node-lint:
+    needs:
+      - path-filter
+    if: ${{ needs.path-filter.outputs.changes == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      # Setup and install
+      - uses: actions/checkout@v4
+      - uses: volta-cli/action@v4
+      - run: npm ci --force
+      # Lint the source files
+      - run: npm run lint
+
+  node-test:
+    needs:
+      - path-filter
+    if: ${{ needs.path-filter.outputs.changes == 'true' }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO(cemmer): add windows-latest back
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-13, macos-15 ]
+        node-version:
+          - lts
+          # Using this instead of v16.6.0 to get npm v8.1+ to fix workspace issues
+          - 16.12.0
+    steps:
+      # Setup and install
+      - uses: actions/checkout@v4
+      - uses: volta-cli/action@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci --force
+
+      # Test the source files
+      - run: npm run test:unit
+
+      # Test running
+      - run: |
+          npm start --workspace=packages/dolphin-tool -- convert -i test/fixtures/iso/GameCube-240pSuite-1.19.iso -o GameCube-240pSuite-1.19.rvz -f rvz -c zstd -b 131072 -l 5
+          npm start --workspace=packages/dolphin-tool -- verify -i GameCube-240pSuite-1.19.rvz
+          npm start --workspace=packages/dolphin-tool -- header -i GameCube-240pSuite-1.19.rvz
+
+      # Test building
+      - run: npm run build
+
+  # !!! This check should be required by GitHub !!!
+  test-status-check:
+    if: always()
+    needs:
+      - path-filter
+      - node-lint
+      - node-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: re-actors/alls-green@release/v1
+        with:
+          allowed-skips: node-lint, node-test
+          jobs: ${{ toJSON(needs) }}

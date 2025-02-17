@@ -1,0 +1,32 @@
+{
+  "private": true,
+  "name": "dolphin-tool-js",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "lock:regen": "rm -rf package-lock.json packages/*/package-lock.json node_modules/ packages/*/node_modules/ && npm install --force",
+    "clean": "lerna clean --yes && rm -rf packages/*/dist packages/*/*.tgz",
+    "build": "lerna run build",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix",
+    "test": "lerna run test",
+    "test:force": "lerna run test --skip-nx-cache",
+    "test:unit": "lerna run test:unit",
+    "test:coverage": "lerna run test:coverage",
+    "bump:major": "lerna version major --yes",
+    "bump:minor": "lerna version minor --yes",
+    "bump:patch": "lerna version patch --yes",
+    "pack:all": "lerna exec -- npm pack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "lerna": "^8.1.8"
+  },
+  "engines": {
+    "node": ">=16.12.0"
+  },
+  "volta": {
+    "node": "20.11.1"
+  }
+}
