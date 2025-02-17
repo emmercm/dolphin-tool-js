@@ -94,7 +94,7 @@ export default class DolphinToolBin {
         if (code !== null && code !== 0) {
           return reject(output);
         }
-        return resolve(output);
+        setTimeout(() => resolve(output), 500);
       });
       proc.on('error', () => {
         const output = Buffer.concat(chunks).toString().trim();
