@@ -15,7 +15,7 @@ export interface DolphinToolExtractOptions extends DolphinToolRunOptions {
 
 export default {
   async listFiles(options: DolphinToolListOptions, attempt = 1): Promise<string[]> {
-    console.log('exists?', fs.existsSync(options.inputFilename));
+    console.log('exists?', fs.existsSync(options.inputFilename), options.inputFilename);
     const output = await DolphinToolBin.run([
       'extract',
       '-i', options.inputFilename,
@@ -37,7 +37,7 @@ export default {
   },
 
   async extract(options: DolphinToolExtractOptions): Promise<void> {
-    console.log('exists?', fs.existsSync(options.inputFilename));
+    console.log('exists?', fs.existsSync(options.inputFilename), options.inputFilename);
     await DolphinToolBin.run([
       'extract',
       '-i', options.inputFilename,

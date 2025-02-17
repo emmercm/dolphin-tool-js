@@ -17,7 +17,7 @@ export interface VerifyDigests {
 
 export default {
   async verify(options: VerifyOptions, attempt = 1): Promise<VerifyDigests> {
-    console.log('exists?', fs.existsSync(options.inputFilename));
+    console.log('exists?', fs.existsSync(options.inputFilename), options.inputFilename);
     const output = await DolphinToolBin.run([
       'verify',
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
