@@ -83,7 +83,6 @@ export default class DolphinToolBin {
           Buffer.concat(chunks).toString().trim(),
         );
       }, 2000);
-
       proc.on('disconnect', () => {
         console.log(
           'DISCONNECT!',
@@ -94,6 +93,10 @@ export default class DolphinToolBin {
           Buffer.concat(chunks).toString().trim(),
         );
       });
+      proc.on('message', (message) => {
+        console.log('MESSAGE!', message);
+      });
+      proc.on('exit', (code) => {});
 
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
