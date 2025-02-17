@@ -73,6 +73,10 @@ export default class DolphinToolBin {
 
       const chunks: Buffer[] = [];
 
+      const timeout = setTimeout(() => {
+        console.log('TIMEOUT!', Buffer.concat(chunks).toString().trim());
+      }, 2000);
+
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
           console.log(chunk.toString());
@@ -90,6 +94,7 @@ export default class DolphinToolBin {
       });
 
       proc.on('close', (code) => {
+        clearTimeout(timeout);
         const output = Buffer.concat(chunks).toString().trim();
         if (code !== null && code !== 0) {
           return reject(output);
@@ -97,6 +102,7 @@ export default class DolphinToolBin {
         return resolve(output);
       });
       proc.on('error', () => {
+        clearTimeout(timeout);
         const output = Buffer.concat(chunks).toString().trim();
         reject(output);
       });
