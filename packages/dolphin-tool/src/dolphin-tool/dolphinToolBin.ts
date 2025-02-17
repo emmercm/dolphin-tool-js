@@ -59,8 +59,6 @@ export default class DolphinToolBin {
     return undefined;
   }
 
-  private static openProcesses = 0;
-
   /**
    * Run dolphin-tool with some arguments.
    */
@@ -74,19 +72,6 @@ export default class DolphinToolBin {
       const proc = child_process.spawn(dolphinToolBin, arguments_, { windowsHide: true });
 
       const chunks: Buffer[] = [];
-
-      proc.on('spawn', () => {
-        this.openProcesses += 1;
-      });
-      const timeout = setTimeout(() => {
-        console.log(
-          'TIMEOUT!',
-          proc.pid,
-          this.openProcesses,
-          arguments_,
-          Buffer.concat(chunks).toString().trim(),
-        );
-      }, 2000);
 
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
@@ -105,8 +90,6 @@ export default class DolphinToolBin {
       });
 
       proc.on('close', (code) => {
-        this.openProcesses -= 1;
-        clearTimeout(timeout);
         const output = Buffer.concat(chunks).toString().trim();
         if (code !== null && code !== 0) {
           return reject(output);
@@ -114,7 +97,6 @@ export default class DolphinToolBin {
         return resolve(output);
       });
       proc.on('error', () => {
-        clearTimeout(timeout);
         const output = Buffer.concat(chunks).toString().trim();
         reject(output);
       });
