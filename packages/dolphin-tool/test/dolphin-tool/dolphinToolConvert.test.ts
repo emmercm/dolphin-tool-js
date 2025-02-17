@@ -8,10 +8,6 @@ import { CompressionMethodGcz, CompressionMethodWiaRvz, ContainerFormat } from '
 import DolphinToolHeader from '../../src/dolphin-tool/dolphinToolHeader.js';
 
 it('should fail on nonexistent file', async () => {
-  if (process.platform === 'win32') {
-    return;
-  }
-
   const containerFormat = ContainerFormat.ISO;
   const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), 'dummy'))}.${containerFormat.toLowerCase()}`;
 
