@@ -74,17 +74,17 @@ export default class DolphinToolBin {
       const chunks: Buffer[] = [];
 
       proc.stdout.on('data', (chunk) => {
-        // if (options?.logStd) {
-        console.log(chunk.toString());
-        // }
+        if (options?.logStd) {
+          console.log(chunk.toString());
+        }
 
         chunks.push(chunk);
       });
 
       proc.stderr.on('data', (chunk) => {
-        // if (options?.logStd) {
-        console.error(chunk.toString());
-        // }
+        if (options?.logStd) {
+          console.error(chunk.toString());
+        }
 
         chunks.push(chunk);
       });
