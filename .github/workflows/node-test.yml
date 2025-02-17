@@ -65,10 +65,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci --force
-      - if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsdl2-2.0-0 libsdl2-ttf-2.0-0
 
       # Test the source files
       - run: npm run test:unit ${{ startsWith(matrix.os, 'windows') && '--runInBand' || '' }}
