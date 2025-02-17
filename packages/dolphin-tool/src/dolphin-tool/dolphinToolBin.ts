@@ -2,6 +2,7 @@ import which from 'which';
 import util from 'node:util';
 import fs from 'node:fs';
 import * as child_process from 'node:child_process';
+import { Mutex } from 'async-mutex';
 
 export interface DolphinToolRunOptions {
   binaryPreference?: DolphinToolBinaryPreference
@@ -17,6 +18,8 @@ export enum DolphinToolBinaryPreference {
  * Code to find and interact with the `dolphin-tool` binary.
  */
 export default class DolphinToolBin {
+  private static readonly MUTEX = new Mutex();
+
   private static DOLPHIN_TOOL_BIN: string | undefined;
 
   private static async getBinPath(
@@ -70,7 +73,7 @@ export default class DolphinToolBin {
       throw new Error('dolphin-tool not found');
     }
 
-    return new Promise<string>((resolve, reject) => {
+    this.MUTEX.runExclusive(async () => new Promise<string>((resolve, reject) => {
       const proc = child_process.spawn(dolphinToolBin, arguments_, { windowsHide: true });
 
       const chunks: Buffer[] = [];
@@ -118,6 +121,6 @@ export default class DolphinToolBin {
         const output = Buffer.concat(chunks).toString().trim();
         reject(output);
       });
-    });
+    }));
   }
 }
