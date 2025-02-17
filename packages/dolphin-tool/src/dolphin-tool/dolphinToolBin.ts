@@ -94,9 +94,25 @@ export default class DolphinToolBin {
         );
       });
       proc.on('message', (message) => {
-        console.log('MESSAGE!', message);
+        console.log(
+          'MESSAGE!',
+          proc.pid,
+          proc.connected,
+          proc.exitCode,
+          arguments_,
+          message,
+        );
       });
-      proc.on('exit', (code) => {});
+      proc.on('exit', (code) => {
+        console.log(
+          'EXIT!',
+          proc.pid,
+          proc.connected,
+          proc.exitCode,
+          arguments_,
+          code,
+        );
+      });
 
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
