@@ -8,8 +8,11 @@ import TestUtil from '../testUtil.js';
 import DolphinToolConvert from '../../src/dolphin-tool/dolphinToolConvert.js';
 
 it('should fail on nonexistent file', async () => {
-  const temporaryDirectory = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'temp-'));
+  if (process.platform === 'win32') {
+    return;
+  }
 
+  const temporaryDirectory = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'temp-'));
   try {
     await expect(DolphinToolVerify.verify({
       inputFilename: os.devNull,
