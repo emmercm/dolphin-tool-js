@@ -84,6 +84,17 @@ export default class DolphinToolBin {
         );
       }, 2000);
 
+      proc.on('disconnect', () => {
+        console.log(
+          'DISCONNECT!',
+          proc.pid,
+          proc.connected,
+          proc.exitCode,
+          arguments_,
+          Buffer.concat(chunks).toString().trim(),
+        );
+      });
+
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
           console.log(chunk.toString());
