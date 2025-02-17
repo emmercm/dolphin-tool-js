@@ -129,7 +129,9 @@ describe.each([
 
         expect(header.blockSize).toEqual(convertOptions.blockSize);
         expect(header.compressionMethod).toEqual(compressionMethod);
-        expect(header.compressionLevel).toEqual(convertOptions.compressionLevel ?? 0);
+        expect(header.compressionLevel).toEqual(
+          compressionMethod === CompressionMethodWiaRvz.NONE ? 0 : 5,
+        );
       } finally {
         await promisify(fs.rm)(temporaryFile, { force: true });
       }
