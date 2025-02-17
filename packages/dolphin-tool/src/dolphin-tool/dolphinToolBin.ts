@@ -73,46 +73,21 @@ export default class DolphinToolBin {
 
       const chunks: Buffer[] = [];
 
+      let spawned = false;
+      proc.on('spawn', () => {
+        spawned = true;
+      });
       const timeout = setTimeout(() => {
         console.log(
           'TIMEOUT!',
           proc.pid,
           proc.connected,
           proc.exitCode,
+          spawned,
           arguments_,
           Buffer.concat(chunks).toString().trim(),
         );
       }, 2000);
-      proc.on('disconnect', () => {
-        console.log(
-          'DISCONNECT!',
-          proc.pid,
-          proc.connected,
-          proc.exitCode,
-          arguments_,
-          Buffer.concat(chunks).toString().trim(),
-        );
-      });
-      proc.on('message', (message) => {
-        console.log(
-          'MESSAGE!',
-          proc.pid,
-          proc.connected,
-          proc.exitCode,
-          arguments_,
-          message,
-        );
-      });
-      proc.on('exit', (code) => {
-        console.log(
-          'EXIT!',
-          proc.pid,
-          proc.connected,
-          proc.exitCode,
-          arguments_,
-          code,
-        );
-      });
 
       proc.stdout.on('data', (chunk) => {
         if (options?.logStd) {
