@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethodWiaRvz, ContainerFormat } from './common.js';
 

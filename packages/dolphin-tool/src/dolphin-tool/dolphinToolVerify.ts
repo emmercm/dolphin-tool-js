@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { DigestAlgorithm } from './common.js';
 
