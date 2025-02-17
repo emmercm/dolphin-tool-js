@@ -71,7 +71,11 @@ export default class DolphinToolBin {
     }
 
     return new Promise<string>((resolve, reject) => {
-      const proc = child_process.spawn(dolphinToolBin, arguments_, { windowsHide: true });
+      const proc = child_process.spawn(
+        dolphinToolBin,
+        arguments_,
+        { windowsHide: true, detached: process.platform === 'win32' },
+      );
 
       const chunks: Buffer[] = [];
 
