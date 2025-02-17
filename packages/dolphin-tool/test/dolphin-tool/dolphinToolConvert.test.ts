@@ -116,7 +116,7 @@ describe.each([
           containerFormat,
           blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
           compressionMethod,
-          compressionLevel: compressionMethod === CompressionMethodWiaRvz.NONE ? 0 : 5,
+          compressionLevel: 5,
         };
         await DolphinToolConvert.convert(convertOptions);
         await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
