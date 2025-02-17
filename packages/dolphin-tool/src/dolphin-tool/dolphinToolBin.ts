@@ -73,7 +73,20 @@ export default class DolphinToolBin {
       throw new Error('dolphin-tool not found');
     }
 
-    this.MUTEX.runExclusive(async () => new Promise<string>((resolve, reject) => {
+    if (process.platform === 'win32') {
+      return this.MUTEX.runExclusive(
+        async () => this.runPromise(dolphinToolBin, arguments_, options),
+      );
+    }
+    return this.runPromise(dolphinToolBin, arguments_, options);
+  }
+
+  private static async runPromise(
+    dolphinToolBin: string,
+    arguments_: string[],
+    options?: DolphinToolRunOptions,
+  ): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
       const proc = child_process.spawn(dolphinToolBin, arguments_, { windowsHide: true });
 
       const chunks: Buffer[] = [];
@@ -121,6 +134,6 @@ export default class DolphinToolBin {
         const output = Buffer.concat(chunks).toString().trim();
         reject(output);
       });
-    }));
+    });
   }
 }
