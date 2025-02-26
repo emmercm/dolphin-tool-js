@@ -1,5 +1,6 @@
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { DigestAlgorithm } from './common.js';
+import utils from './utils.js';
 
 export interface VerifyOptions extends DolphinToolRunOptions {
   inputFilename: string,
@@ -16,12 +17,34 @@ export interface VerifyDigests {
 
 export default {
   async verify(options: VerifyOptions, attempt = 1): Promise<VerifyDigests> {
-    const output = await DolphinToolBin.run([
+    const runOptions: string[] = [
       'verify',
-      ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
       '-i', options.inputFilename,
       ...(options.digestAlgorithm === undefined ? [] : ['-a', options.digestAlgorithm]),
-    ], options);
+    ];
+
+    let output: string;
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (process.platform === 'win32' && options.userFolderPath === undefined) {
+      /**
+       * Windows (and seemingly no other OS) has issues with concurrent or rapid execution of
+       * `DolphinTool.exe`, resulting in popups with messages such as:
+       *    "IOS_FS: Failed to write new FST"
+       *    "IOS_FS: Failed to rename temporary FST file"
+       *    "File <userDir>/Wii/shared2/sys/SYSCONF could not be opened! This may happen with
+       *      improper permissions or use by another process."
+       * To combat this, we have to use separate user directories per process.
+       */
+      output = await utils.wrapTempDir(async (temporaryDirectory) => DolphinToolBin.run([
+        ...runOptions,
+        '-u', temporaryDirectory,
+      ], options));
+    } else {
+      output = await DolphinToolBin.run([
+        ...runOptions,
+        ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
+      ], options);
+    }
 
     const digests: VerifyDigests = {};
     for (const line of output.split(/\r?\n/)) {
