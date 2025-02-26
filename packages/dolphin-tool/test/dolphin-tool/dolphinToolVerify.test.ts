@@ -3,7 +3,7 @@ import os from 'node:os';
 import util, { promisify } from 'node:util';
 import fs from 'node:fs';
 import DolphinToolVerify, { VerifyDigests } from '../../src/dolphin-tool/dolphinToolVerify.js';
-import { CompressionMethodWiaRvz, ContainerFormat, DigestAlgorithm } from '../../src/dolphin-tool/common.js';
+import { ContainerFormat, DigestAlgorithm } from '../../src/dolphin-tool/common.js';
 import TestUtil from '../testUtil.js';
 import DolphinToolConvert from '../../src/dolphin-tool/dolphinToolConvert.js';
 
@@ -36,9 +36,6 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
-          compressionMethod: CompressionMethodWiaRvz.LZMA,
-          compressionLevel: 5,
         });
 
         const digests = await DolphinToolVerify.verify({
@@ -65,9 +62,6 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
-          compressionMethod: CompressionMethodWiaRvz.LZMA,
-          compressionLevel: 5,
         });
 
         const digests = await DolphinToolVerify.verify({

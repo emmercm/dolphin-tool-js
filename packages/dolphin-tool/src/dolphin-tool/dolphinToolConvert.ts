@@ -15,15 +15,38 @@ export interface CreateOptions extends DolphinToolRunOptions {
 
 export default {
   async convert(options: CreateOptions): Promise<void> {
+    const blockSize = options.blockSize ?? {
+      // Unchangeable defaults of Dolphin v2412
+      [ContainerFormat.ISO]: undefined,
+      [ContainerFormat.GCZ]: 32 * 1024,
+      [ContainerFormat.WIA]: 2 * 1024 * 1024,
+      [ContainerFormat.RVZ]: 128 * 1024,
+    }[options.containerFormat];
+
+    const compressionMethod = options.compressionMethod ?? {
+      // Defaults of Dolphin v2412
+      [ContainerFormat.ISO]: undefined,
+      [ContainerFormat.GCZ]: undefined, // deflate
+      [ContainerFormat.WIA]: CompressionMethodWiaRvz.NONE,
+      [ContainerFormat.RVZ]: CompressionMethodWiaRvz.ZSTD,
+    }[options.containerFormat];
+
+    const compressionLevel = options.compressionLevel ?? (
+      // Defaults of Dolphin v2412
+      compressionMethod !== undefined && compressionMethod !== CompressionMethodWiaRvz.NONE
+        ? 5
+        : undefined
+    );
+
     const runOptions: string[] = [
       'convert',
       '-i', options.inputFilename,
       '-o', options.outputFilename,
       '-f', options.containerFormat,
       ...(options.scrubJunk ? ['-s'] : []),
-      ...(options.blockSize === undefined ? [] : ['-b', String(options.blockSize)]),
-      ...(options.compressionMethod === undefined ? [] : ['-c', options.compressionMethod]),
-      ...(options.compressionLevel === undefined ? [] : ['-l', String(options.compressionLevel)]),
+      ...(blockSize === undefined ? [] : ['-b', String(blockSize)]),
+      ...(compressionMethod === undefined ? [] : ['-c', compressionMethod]),
+      ...(compressionLevel === undefined ? [] : ['-l', String(compressionLevel)]),
     ];
 
     if (process.platform === 'win32' && options.userFolderPath === undefined) {
