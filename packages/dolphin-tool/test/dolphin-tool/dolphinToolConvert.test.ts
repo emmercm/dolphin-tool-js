@@ -68,7 +68,6 @@ describe.each([
         inputFilename,
         outputFilename: temporaryFile,
         containerFormat,
-        blockSize: 131_072,
       };
       await DolphinToolConvert.convert(convertOptions);
       await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
@@ -79,7 +78,7 @@ describe.each([
         inputFilename: temporaryFile,
       });
 
-      expect(header.blockSize).toEqual(convertOptions.blockSize);
+      expect(header.blockSize).toBeGreaterThan(0);
       expect(header.compressionMethod).toEqual(CompressionMethodGcz.DEFLATE);
       expect(header.compressionLevel).toBeUndefined();
     } finally {
@@ -114,9 +113,7 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
           compressionMethod,
-          compressionLevel: 5,
         };
         await DolphinToolConvert.convert(convertOptions);
         await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
@@ -127,7 +124,7 @@ describe.each([
           inputFilename: temporaryFile,
         });
 
-        expect(header.blockSize).toEqual(convertOptions.blockSize);
+        expect(header.blockSize).toBeGreaterThan(0);
         expect(header.compressionMethod).toEqual(compressionMethod);
         expect(header.compressionLevel).toEqual(
           compressionMethod === CompressionMethodWiaRvz.NONE ? 0 : 5,

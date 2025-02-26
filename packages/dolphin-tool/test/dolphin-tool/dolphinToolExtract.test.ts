@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import util, { promisify } from 'node:util';
 import fs from 'node:fs';
-import { CompressionMethodWiaRvz, ContainerFormat } from '../../src/dolphin-tool/common.js';
+import { ContainerFormat } from '../../src/dolphin-tool/common.js';
 import DolphinToolExtract from '../../src/dolphin-tool/dolphinToolExtract.js';
 import DolphinToolConvert from '../../src/dolphin-tool/dolphinToolConvert.js';
 import TestUtil from '../testUtil.js';
@@ -37,9 +37,6 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
-          compressionMethod: CompressionMethodWiaRvz.LZMA,
-          compressionLevel: 5,
         });
 
         const files = await DolphinToolExtract.listFiles({ inputFilename: temporaryFile });
@@ -57,9 +54,6 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
-          compressionMethod: CompressionMethodWiaRvz.LZMA,
-          compressionLevel: 5,
         });
 
         await DolphinToolExtract.extract({
@@ -84,9 +78,6 @@ describe.each([
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
-          blockSize: containerFormat === ContainerFormat.WIA ? 2_097_152 : 131_072,
-          compressionMethod: CompressionMethodWiaRvz.LZMA,
-          compressionLevel: 5,
         });
 
         await DolphinToolExtract.extract({
