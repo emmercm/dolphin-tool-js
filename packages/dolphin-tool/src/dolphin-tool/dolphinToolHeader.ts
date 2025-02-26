@@ -92,16 +92,19 @@ export default {
 
     if (contents.subarray(0, 4).equals(Buffer.from('01C00BB1', 'hex'))) {
       // GCZ
+      // @see https://github.com/dolphin-emu/dolphin/blob/1f5e100a0e6dd4f9ab3784fd6373d452054d08bf/Source/Core/DiscIO/CompressedBlob.h#L38
       return contents.subarray(0x10, 0x10 + 8).readBigUInt64LE();
     }
 
     if (contents.subarray(0, 4).equals(Buffer.from('RVZ\u0001'))) {
       // RVZ
+      // @see https://github.com/dolphin-emu/dolphin/blob/f93781d91a90a937973534298b67b789f6a0db0a/docs/WiaAndRvz.md#wia_file_head_t
       return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
     }
 
     if (contents.subarray(0, 4).equals(Buffer.from('WIA\u0001'))) {
       // WIA
+      // @see https://github.com/dolphin-emu/dolphin/blob/f93781d91a90a937973534298b67b789f6a0db0a/docs/WiaAndRvz.md#wia_file_head_t
       return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
     }
 
