@@ -1,6 +1,11 @@
 import path from 'node:path';
+import os from 'node:os';
+import util from 'node:util';
+import fs from 'node:fs';
 import DolphinToolHeader from '../../src/dolphin-tool/dolphinToolHeader.js';
-import { CompressionMethodGcz, CompressionMethodWiaRvz } from '../../src/dolphin-tool/common.js';
+import { CompressionMethodGcz, CompressionMethodWiaRvz, ContainerFormat } from '../../src/dolphin-tool/common.js';
+import DolphinToolConvert from '../../src/dolphin-tool/dolphinToolConvert.js';
+import TestUtil from '../testUtil.js';
 
 test.each([
   path.join('test', 'fixtures', 'gcz', '4096.gcz'),
@@ -41,4 +46,31 @@ test.each([
   expect(header.blockSize).toBeDefined();
   expect(header.compressionMethod).toBeDefined();
   expect(header.compressionLevel).toBeDefined();
+});
+
+describe.each([
+  [path.join('test', 'fixtures', 'iso', 'GameCube-240pSuite-1.19.iso'), BigInt(1_671_168)],
+])('should get uncompressed size: %s', (inputFilename, expectedUncompressedSize) => {
+  test.each(
+    Object.keys(ContainerFormat)
+      .filter((format) => Number.isNaN(Number(format)))
+      .map((format) => ([format])),
+  )('%s', async (containerFormatKey) => {
+    const containerFormat = ContainerFormat[containerFormatKey as keyof typeof ContainerFormat];
+
+    const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), 'dummy'))}.${containerFormat.toLowerCase()}`;
+
+    try {
+      await DolphinToolConvert.convert({
+        inputFilename,
+        outputFilename: temporaryFile,
+        containerFormat,
+      });
+
+      const header = await DolphinToolHeader.header({ inputFilename });
+      expect(header.uncompressedSize).toEqual(expectedUncompressedSize);
+    } finally {
+      await util.promisify(fs.rm)(temporaryFile, { force: true });
+    }
+  });
 });

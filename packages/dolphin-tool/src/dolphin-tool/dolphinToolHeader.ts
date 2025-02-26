@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import util from 'node:util';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethod, CompressionMethodGcz, CompressionMethodWiaRvz } from './common.js';
 
@@ -6,7 +8,7 @@ export interface DolphinToolHeaderOptions extends DolphinToolRunOptions {
 }
 
 // The JSON format that `dolphin-tool` prints
-export interface DolphinToolHeader {
+export interface Header {
   // ISOs won't have a blockSize or compressionMethod
   blockSize?: number,
   compressionMethod?: CompressionMethod,
@@ -17,10 +19,18 @@ export interface DolphinToolHeader {
   internalName?: string,
   region?: string,
   revision?: number,
+  // dolphin-tool doesn't do this, but we can
+  uncompressedSize: bigint,
 }
 
-export default {
-  async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<DolphinToolHeader> {
+/**
+ * Parses information found in file headers.
+ */
+export default class DolphinToolHeader {
+  /**
+   * Parse the file header.
+   */
+  static async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<Header> {
     const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,
@@ -68,6 +78,35 @@ export default {
       internalName: object.internal_name,
       region: object.region,
       revision: object.revision,
+      uncompressedSize: await this.getUncompressedSize(options.inputFilename),
     };
-  },
-};
+  }
+
+  private static async getUncompressedSize(inputFilename: string): Promise<bigint> {
+    // WIA, RVZ?
+    const chunks: Buffer[] = [];
+    for await (const chunk of fs.createReadStream(inputFilename, { start: 0, end: 0x24 + 8 })) {
+      chunks.push(chunk);
+    }
+    const contents = Buffer.concat(chunks);
+
+    if (contents.subarray(0, 4).equals(Buffer.from('01C00BB1', 'hex'))) {
+      // GCZ
+      return contents.subarray(0x10, 0x10 + 8).readBigUInt64LE();
+    }
+
+    if (contents.subarray(0, 4).equals(Buffer.from('RVZ\u0001'))) {
+      // RVZ
+      return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
+    }
+
+    if (contents.subarray(0, 4).equals(Buffer.from('WIA\u0001'))) {
+      // WIA
+      return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
+    }
+
+    // ISO
+    const stat = await util.promisify(fs.stat)(inputFilename);
+    return BigInt(stat.size);
+  }
+}
