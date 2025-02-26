@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import util from 'node:util';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethod, CompressionMethodGcz, CompressionMethodWiaRvz } from './common.js';
 
@@ -6,7 +8,7 @@ export interface DolphinToolHeaderOptions extends DolphinToolRunOptions {
 }
 
 // The JSON format that `dolphin-tool` prints
-export interface DolphinToolHeader {
+export interface Header {
   // ISOs won't have a blockSize or compressionMethod
   blockSize?: number,
   compressionMethod?: CompressionMethod,
@@ -19,8 +21,14 @@ export interface DolphinToolHeader {
   revision?: number,
 }
 
+/**
+ * Parses information found in file headers.
+ */
 export default {
-  async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<DolphinToolHeader> {
+  /**
+   * Have `dolphin-tool` parse the file header.
+   */
+  async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<Header> {
     const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,
@@ -69,5 +77,39 @@ export default {
       region: object.region,
       revision: object.revision,
     };
+  },
+
+  /**
+   * Read the file header
+   */
+  async uncompressedSize(inputFilename: string): Promise<bigint> {
+    // WIA, RVZ?
+    const chunks: Buffer[] = [];
+    for await (const chunk of fs.createReadStream(inputFilename, { start: 0, end: 0x24 + 8 })) {
+      chunks.push(chunk);
+    }
+    const contents = Buffer.concat(chunks);
+
+    if (contents.subarray(0, 4).equals(Buffer.from('01C00BB1', 'hex'))) {
+      // GCZ
+      // @see https://github.com/dolphin-emu/dolphin/blob/1f5e100a0e6dd4f9ab3784fd6373d452054d08bf/Source/Core/DiscIO/CompressedBlob.h#L38
+      return contents.subarray(0x10, 0x10 + 8).readBigUInt64LE();
+    }
+
+    if (contents.subarray(0, 4).equals(Buffer.from('RVZ\u0001'))) {
+      // RVZ
+      // @see https://github.com/dolphin-emu/dolphin/blob/f93781d91a90a937973534298b67b789f6a0db0a/docs/WiaAndRvz.md#wia_file_head_t
+      return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
+    }
+
+    if (contents.subarray(0, 4).equals(Buffer.from('WIA\u0001'))) {
+      // WIA
+      // @see https://github.com/dolphin-emu/dolphin/blob/f93781d91a90a937973534298b67b789f6a0db0a/docs/WiaAndRvz.md#wia_file_head_t
+      return contents.subarray(0x24, 0x24 + 8).readBigUInt64BE();
+    }
+
+    // ISO
+    const stat = await util.promisify(fs.stat)(inputFilename);
+    return BigInt(stat.size);
   },
 };
