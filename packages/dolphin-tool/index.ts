@@ -21,6 +21,7 @@ export default {
   convert: DolphinToolConvert.convert,
   verify: DolphinToolVerify.verify,
   header: DolphinToolHeader.header,
+  uncompressedSize: DolphinToolHeader.uncompressedSize,
   listFiles: DolphinToolExtract.listFiles,
   extract: DolphinToolExtract.extract,
 };

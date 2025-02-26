@@ -19,18 +19,16 @@ export interface Header {
   internalName?: string,
   region?: string,
   revision?: number,
-  // dolphin-tool doesn't do this, but we can
-  uncompressedSize: bigint,
 }
 
 /**
  * Parses information found in file headers.
  */
-export default class DolphinToolHeader {
+export default {
   /**
-   * Parse the file header.
+   * Have `dolphin-tool` parse the file header.
    */
-  static async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<Header> {
+  async header(options: DolphinToolHeaderOptions, attempt = 1): Promise<Header> {
     const output = await DolphinToolBin.run([
       'header',
       '-i', options.inputFilename,
@@ -78,11 +76,13 @@ export default class DolphinToolHeader {
       internalName: object.internal_name,
       region: object.region,
       revision: object.revision,
-      uncompressedSize: await this.getUncompressedSize(options.inputFilename),
     };
-  }
+  },
 
-  private static async getUncompressedSize(inputFilename: string): Promise<bigint> {
+  /**
+   * Read the file header
+   */
+  async uncompressedSize(inputFilename: string): Promise<bigint> {
     // WIA, RVZ?
     const chunks: Buffer[] = [];
     for await (const chunk of fs.createReadStream(inputFilename, { start: 0, end: 0x24 + 8 })) {
@@ -108,5 +108,5 @@ export default class DolphinToolHeader {
     // ISO
     const stat = await util.promisify(fs.stat)(inputFilename);
     return BigInt(stat.size);
-  }
-}
+  },
+};
