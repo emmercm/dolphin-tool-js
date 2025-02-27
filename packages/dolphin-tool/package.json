@@ -1,6 +1,6 @@
 {
   "name": "dolphin-tool",
-  "version": "0.2412.2",
+  "version": "0.2412.3",
   "description": "🐬 dolphin-tool binaries and wrapper for Node.js.",
   "keywords": [
     "dolphin",
@@ -58,13 +58,13 @@
     "which": "^4.0.0"
   },
   "optionalDependencies": {
-    "@emmercm/dolphin-tool-darwin-arm64": "^0.2412.2",
-    "@emmercm/dolphin-tool-darwin-x64": "^0.2412.2",
-    "@emmercm/dolphin-tool-linux-arm": "^0.2412.2",
-    "@emmercm/dolphin-tool-linux-arm64": "^0.2412.2",
-    "@emmercm/dolphin-tool-linux-x64": "^0.2412.2",
-    "@emmercm/dolphin-tool-win32-arm64": "^0.2412.2",
-    "@emmercm/dolphin-tool-win32-x64": "^0.2412.2"
+    "@emmercm/dolphin-tool-darwin-arm64": "^0.2412.3",
+    "@emmercm/dolphin-tool-darwin-x64": "^0.2412.3",
+    "@emmercm/dolphin-tool-linux-arm": "^0.2412.3",
+    "@emmercm/dolphin-tool-linux-arm64": "^0.2412.3",
+    "@emmercm/dolphin-tool-linux-x64": "^0.2412.3",
+    "@emmercm/dolphin-tool-win32-arm64": "^0.2412.3",
+    "@emmercm/dolphin-tool-win32-x64": "^0.2412.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
