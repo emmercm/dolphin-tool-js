@@ -52,7 +52,10 @@ export default class DolphinToolBin {
   }
 
   private static async getBinPathExisting(): Promise<string | undefined> {
-    const resolved = await which('dolphin-tool', { nothrow: true });
+    const resolved = await which(
+      process.platform === 'win32' ? 'DolphinTool.exe' : 'dolphin-tool',
+      { nothrow: true },
+    );
     if (resolved) {
       return resolved;
     }
