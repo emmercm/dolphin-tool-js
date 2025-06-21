@@ -16,6 +16,7 @@ on:
         required: true
         type: boolean
         default: true
+run-name: "${{ github.workflow }}: ${{ inputs.dolphin_ref || '(default version)' }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,7 +26,7 @@ permissions:
   contents: write
 
 env:
-  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2412' }}
+  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2506a' }}
 
 jobs:
   get-version:
@@ -109,6 +110,7 @@ jobs:
               ${{ matrix.cmake_opts }} \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
+              -DENABLE_HWDB=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
               ..
