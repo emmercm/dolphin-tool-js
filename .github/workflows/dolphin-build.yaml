@@ -16,8 +16,7 @@ on:
         required: true
         type: boolean
         default: true
-  push:
-run-name: "${{ github.workflow }}: ${{ inputs.dolphin_ref || '(default)' }}"
+run-name: "${{ github.workflow }}: ${{ inputs.dolphin_ref || '(default version)' }}"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
