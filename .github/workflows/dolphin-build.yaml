@@ -87,13 +87,15 @@ jobs:
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
             apt-get install -y build-essential cmake pkg-config
+            # Dolphin provides these at ./Externals/, but use the latest available instead
+            apt-get install -y libusb-1.0-0-dev libudev-dev
             mkdir build && cd build
             cmake \
               -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
               -DENABLE_CLI_TOOL=ON \
               -DUSE_SYSTEM_LIBS=OFF \
-              -DLAZY_LOAD_LIBS=OFF \
               -DUSE_UPNP=OFF \
+              -DUSE_DISCORD_PRESENCE=OFF \
               -DENABLE_QT=OFF \
               -DENABLE_ALSA=OFF \
               -DENABLE_PULSEAUDIO=OFF \
@@ -173,7 +175,6 @@ jobs:
             -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
             -DENABLE_CLI_TOOL=ON \
             -DUSE_SYSTEM_LIBS=OFF \
-            -DLAZY_LOAD_LIBS=OFF \
             -DUSE_UPNP=OFF \
             -DENABLE_QT=OFF \
             -DENABLE_ALSA=OFF \
