@@ -68,8 +68,6 @@ jobs:
 
       # Test the source files
       - run: npm run test:unit
-        env:
-          LIBUSB_DEBUG: 4
 
       # Test running
       - run: |
