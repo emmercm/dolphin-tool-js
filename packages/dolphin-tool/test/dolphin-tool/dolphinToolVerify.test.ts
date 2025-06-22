@@ -32,11 +32,16 @@ describe.each([
     it('should verify default', async () => {
       const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
       try {
-        await DolphinToolConvert.convert({
+        const convert = await DolphinToolConvert.convert({
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
         });
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
+        const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
+        expect(temporaryFileStat.size).toBeGreaterThan(0);
 
         const digests = await DolphinToolVerify.verify({
           inputFilename: temporaryFile,
@@ -58,11 +63,16 @@ describe.each([
     ] satisfies [DigestAlgorithm, keyof VerifyDigests][])('should verify: %s', async (digestAlgorithm, digestKey) => {
       const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
       try {
-        await DolphinToolConvert.convert({
+        const convert = await DolphinToolConvert.convert({
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
         });
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
+        const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
+        expect(temporaryFileStat.size).toBeGreaterThan(0);
 
         const digests = await DolphinToolVerify.verify({
           inputFilename: temporaryFile,

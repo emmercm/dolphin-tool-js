@@ -38,12 +38,14 @@ describe.each([
     const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
 
     try {
-      await DolphinToolConvert.convert({
+      const convert = await DolphinToolConvert.convert({
         inputFilename,
         outputFilename: temporaryFile,
         containerFormat,
       });
-      await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
+      if (!(await TestUtil.exists(temporaryFile))) {
+        throw new Error(convert);
+      }
       const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
       expect(temporaryFileStat.size).toBeGreaterThan(0);
 
@@ -69,8 +71,10 @@ describe.each([
         outputFilename: temporaryFile,
         containerFormat,
       };
-      await DolphinToolConvert.convert(convertOptions);
-      await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
+      const convert = await DolphinToolConvert.convert(convertOptions);
+      if (!(await TestUtil.exists(temporaryFile))) {
+        throw new Error(convert);
+      }
       const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
       expect(temporaryFileStat.size).toBeGreaterThan(0);
 
@@ -115,8 +119,10 @@ describe.each([
           containerFormat,
           compressionMethod,
         };
-        await DolphinToolConvert.convert(convertOptions);
-        await expect(TestUtil.exists(temporaryFile)).resolves.toEqual(true);
+        const convert = await DolphinToolConvert.convert(convertOptions);
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
         const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
         expect(temporaryFileStat.size).toBeGreaterThan(0);
 
