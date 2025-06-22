@@ -14,7 +14,7 @@ export interface CreateOptions extends DolphinToolRunOptions {
 }
 
 export default {
-  async convert(options: CreateOptions): Promise<void> {
+  async convert(options: CreateOptions): Promise<string> {
     const blockSize = options.blockSize ?? {
       // Unchangeable defaults of Dolphin v2412
       [ContainerFormat.ISO]: undefined,
@@ -59,14 +59,13 @@ export default {
        *      improper permissions or use by another process."
        * To combat this, we have to use separate user directories per process.
        */
-      await utils.wrapTempDir(async (temporaryDirectory) => DolphinToolBin.run([
+      return utils.wrapTempDir(async (temporaryDirectory) => DolphinToolBin.run([
         ...runOptions,
         '-u', temporaryDirectory,
       ], options));
-      return;
     }
 
-    await DolphinToolBin.run([
+    return DolphinToolBin.run([
       ...runOptions,
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
     ], options);

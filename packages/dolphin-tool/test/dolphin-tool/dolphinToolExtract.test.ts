@@ -33,11 +33,16 @@ describe.each([
     it('should list', async () => {
       const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
       try {
-        await DolphinToolConvert.convert({
+        const convert = await DolphinToolConvert.convert({
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
         });
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
+        const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
+        expect(temporaryFileStat.size).toBeGreaterThan(0);
 
         const files = await DolphinToolExtract.listFiles({ inputFilename: temporaryFile });
         expect(files).toEqual(imageFiles);
@@ -50,11 +55,16 @@ describe.each([
       const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
       const temporaryDirectory = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'temp-'));
       try {
-        await DolphinToolConvert.convert({
+        const convert = await DolphinToolConvert.convert({
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
         });
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
+        const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
+        expect(temporaryFileStat.size).toBeGreaterThan(0);
 
         await DolphinToolExtract.extract({
           inputFilename: temporaryFile,
@@ -74,11 +84,16 @@ describe.each([
       const temporaryFile = `${await TestUtil.mktemp(path.join(os.tmpdir(), path.basename(inputFilename)))}.${containerFormat.toLowerCase()}`;
       const temporaryDirectory = await util.promisify(fs.mkdtemp)(path.join(os.tmpdir(), 'temp-'));
       try {
-        await DolphinToolConvert.convert({
+        const convert = await DolphinToolConvert.convert({
           inputFilename,
           outputFilename: temporaryFile,
           containerFormat,
         });
+        if (!(await TestUtil.exists(temporaryFile))) {
+          throw new Error(convert);
+        }
+        const temporaryFileStat = await util.promisify(fs.stat)(temporaryFile);
+        expect(temporaryFileStat.size).toBeGreaterThan(0);
 
         await DolphinToolExtract.extract({
           inputFilename: temporaryFile,
