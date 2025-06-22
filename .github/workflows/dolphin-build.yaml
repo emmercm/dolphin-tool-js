@@ -115,6 +115,7 @@ jobs:
               -DENABLE_HWDB=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
+              -DUSE_SYSTEM_LIBUSB=ON \
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
@@ -192,7 +193,7 @@ jobs:
             -DSKIP_POSTPROCESS_BUNDLE=true \
             -DUSE_SYSTEM_ICONV=ON \
             -DUSE_SYSTEM_BZIP2=ON \
-            -DDUSE_SYSTEM_CURL=ON \
+            -DUSE_SYSTEM_CURL=ON \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
           mv Binaries/dolphin-tool ../
