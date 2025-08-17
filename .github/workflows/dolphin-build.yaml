@@ -5,6 +5,7 @@
 name: Dolphin Build
 
 on:
+  pull_request: # TODO(cemmer): DEBUG!
   workflow_dispatch:
     inputs:
       dolphin_ref:
