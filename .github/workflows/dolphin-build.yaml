@@ -84,6 +84,7 @@ jobs:
             --workdir /build
           run: |
             set -euo pipefail
+            set -x
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
