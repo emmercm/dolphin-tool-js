@@ -137,6 +137,7 @@ jobs:
           set -x
           file dolphin-tool
           readelf -d dolphin-tool | grep NEEDED
+          readelf -d dolphin-tool | grep NEEDED | grep 'libusb-1.0' || exit 1
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
