@@ -117,7 +117,7 @@ jobs:
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
               -DUSE_SYSTEM_LIBUSB=ON \
-              "-DLIBUSB_INCLUDE_DIR=$(pkg-config --variable=includedir libusb-1.0)/libusb-1.0" "-DLIBUSB_LIBRARIES=$(pkg-config --variable=libdir libusb-1.0)/libusb-1.0.a" \
+              -DENABLE_SHARED=OFF -DENABLE_STATIC=ON "-DLIBUSB_INCLUDE_DIR=$(pkg-config --variable=includedir libusb-1.0)/libusb-1.0" "-DLIBUSB_LIBRARIES=$(pkg-config --variable=libdir libusb-1.0)/libusb-1.0.a" \
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
@@ -138,7 +138,7 @@ jobs:
           set -x
           file dolphin-tool
           readelf -d dolphin-tool | grep NEEDED
-          readelf -d dolphin-tool | grep NEEDED | grep 'libusb-1.0' || exit 1
+          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libusb-1.0'; then exit 1; fi
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
