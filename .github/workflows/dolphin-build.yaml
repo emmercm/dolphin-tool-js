@@ -117,8 +117,7 @@ jobs:
               -DENABLE_HWDB=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
-              -DUSE_SYSTEM_LIBUSB=ON \
-              -DENABLE_SHARED=OFF -DENABLE_STATIC=ON "-DLIBUSB_INCLUDE_DIR=$(pkg-config --variable=includedir libusb-1.0)/libusb-1.0" "-DLIBUSB_LIBRARIES=$(pkg-config --variable=libdir libusb-1.0)/libusb-1.0.a" \
+              "-DLIBUSB_INCLUDE_DIR=$(pkg-config --variable=includedir libusb-1.0)/libusb-1.0" "-DLIBUSB_LIBRARIES=$(pkg-config --variable=libdir libusb-1.0)/libusb-1.0.a" \
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
