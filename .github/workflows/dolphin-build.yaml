@@ -86,14 +86,6 @@ jobs:
             set -euo pipefail
             set -x
 
-            export PKG_CONFIG="$(pwd)/pkg-config-static"
-            {
-              echo '#!/usr/bin/env bash'
-              echo 'set -euo pipefail'
-              echo 'command pkg-config --static "$@"'
-            } >> "${PKG_CONFIG}"
-            chmod +x "${PKG_CONFIG}"
-
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
             apt-get install -y build-essential cmake pkg-config
@@ -126,7 +118,7 @@ jobs:
               -DENABLE_HWDB=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
-              -DUSE_SYSTEM_LIBUSB=ON --debug-find-pkg=libusb-1.0 \
+              -DUSE_SYSTEM_LIBUSB=ON \
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
