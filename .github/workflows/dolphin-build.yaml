@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       dolphin_ref:
-        description: 'Dolphin GitHub version tag (e.g. "2412")'
+        description: 'Dolphin GitHub version tag (e.g. "2506a")'
         required: true
         type: string
       auto-merge:
@@ -92,7 +92,7 @@ jobs:
             # Dolphin provides these at ./Externals/, but use the latest available instead
             apt-get install -y libusb-1.0-0-dev libudev-dev
             mkdir build && cd build
-            cmake \
+            PKG_CONFIG_STATIC=1 cmake \
               -DDISTRIBUTOR="${{ github.repositoryUrl }}" \
               -DENABLE_CLI_TOOL=ON \
               -DUSE_SYSTEM_LIBS=OFF \
@@ -117,7 +117,7 @@ jobs:
               -DENABLE_HWDB=OFF \
               -DENABLE_EVDEV=OFF \
               -DENABLE_BLUEZ=OFF \
-              -DUSE_SYSTEM_LIBUSB=ON -DCMAKE_EXE_LINKER_FLAGS="-Wl,--push-state,-Bstatic -lusb-1.0 -Wl,--pop-state" \
+              -DUSE_SYSTEM_LIBUSB=ON \
               ..
             make -j$(nproc)
             mv Binaries/dolphin-tool ../
