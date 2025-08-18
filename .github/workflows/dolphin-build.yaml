@@ -28,7 +28,7 @@ permissions:
 
 env:
   dolphin_ref: ${{ inputs.dolphin_ref || '2506a' }}
-  igir_ref: ${{ github.ref }}
+  igir_ref: ${{ github.head_ref || github.ref }}
 
 jobs:
   get-version:
