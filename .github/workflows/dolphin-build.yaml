@@ -27,7 +27,8 @@ permissions:
   contents: write
 
 env:
-  DOLPHIN_REF: ${{ inputs.dolphin_ref || '2506a' }}
+  dolphin_ref: ${{ inputs.dolphin_ref || '2506a' }}
+  igir_ref: ${{ github.ref }}
 
 jobs:
   get-version:
@@ -39,7 +40,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: dolphin-emu/dolphin
-          ref: ${{ env.DOLPHIN_REF }}
+          ref: ${{ env.dolphin_ref }}
       - id: parse-version
         run: |
           set -euo pipefail
@@ -70,7 +71,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: dolphin-emu/dolphin
-          ref: ${{ env.DOLPHIN_REF }}
+          ref: ${{ env.dolphin_ref }}
           submodules: 'recursive'
       - uses: docker/setup-qemu-action@v3
       - name: Build
@@ -166,7 +167,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: dolphin-emu/dolphin
-          ref: ${{ env.DOLPHIN_REF }}
+          ref: ${{ env.dolphin_ref }}
           submodules: 'recursive'
       - name: Build
         run: |
@@ -241,7 +242,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: dolphin-emu/dolphin
-          ref: ${{ env.DOLPHIN_REF }}
+          ref: ${{ env.dolphin_ref }}
           submodules: 'recursive'
       - uses: microsoft/setup-msbuild@v2
       - name: Build
@@ -269,6 +270,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.igir_ref }}
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
