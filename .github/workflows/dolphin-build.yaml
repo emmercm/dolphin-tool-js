@@ -197,6 +197,7 @@ jobs:
             -DENABLE_SDL=OFF \
             -Wno-dev \
             `# macOS options` \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
             -DSKIP_POSTPROCESS_BUNDLE=true \
             -DUSE_SYSTEM_ICONV=ON \
             -DUSE_SYSTEM_BZIP2=ON \
