@@ -5,7 +5,6 @@
 name: Dolphin Build
 
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       dolphin_ref:
@@ -282,8 +281,6 @@ jobs:
       - uses: actions/setup-node@v4
       - id: bump-and-commit
         run: |
-          exit 1
-
           package_name=$(jq --raw-output '.name' packages/dolphin-tool/package.json)
           major_version=$(npm show "${package_name}" --json | jq --raw-output '.versions | .[]' | sed 's/\.[0-9]*//g' | sort | tail -1)
           # shellcheck disable=SC2001
