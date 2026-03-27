@@ -3,8 +3,6 @@ import { JestConfigWithTsJest } from 'ts-jest';
 const jestConfig: JestConfigWithTsJest = {
   testEnvironment: 'node',
 
-  testTimeout: 30_000,
-
   // BEGIN https://kulshekhar.github.io/ts-jest/docs/guides/esm-support
   extensionsToTreatAsEsm: ['.ts'],
   transform: {
