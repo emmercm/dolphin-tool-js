@@ -1,3 +1,5 @@
+import util from 'node:util';
+import fs from 'node:fs';
 import DolphinToolBin, { DolphinToolRunOptions } from './dolphinToolBin.js';
 import { CompressionMethodWiaRvz, ContainerFormat } from './common.js';
 import utils from './utils.js';
@@ -14,7 +16,7 @@ export interface CreateOptions extends DolphinToolRunOptions {
 }
 
 export default {
-  async convert(options: CreateOptions): Promise<string> {
+  async convert(options: CreateOptions, attempt = 1): Promise<string> {
     const blockSize = options.blockSize ?? {
       // Unchangeable defaults of Dolphin v2412
       [ContainerFormat.ISO]: undefined,
@@ -49,6 +51,25 @@ export default {
       ...(compressionLevel === undefined ? [] : ['-l', String(compressionLevel)]),
     ];
 
+    const runFunction = async (runArguments: string[]): Promise<string> => {
+      const convertOutput = await DolphinToolBin.run(runArguments, options);
+
+      // Try to detect failures, and then retry them automatically
+      try {
+        await util.promisify(fs.stat)(options.outputFilename);
+      } catch {
+        if (attempt <= 3) {
+          await new Promise((resolve) => {
+            setTimeout(resolve, Math.random() * (2 ** (attempt - 1) * 20));
+          });
+          return this.convert(options, attempt + 1);
+        }
+        throw new Error(`failed to convert file: ${convertOutput}`);
+      }
+
+      return convertOutput;
+    };
+
     if (process.platform === 'win32' && options.userFolderPath === undefined) {
       /**
        * Windows (and seemingly no other OS) has issues with concurrent or rapid execution of
@@ -59,15 +80,15 @@ export default {
        *      improper permissions or use by another process."
        * To combat this, we have to use separate user directories per process.
        */
-      return utils.wrapTempDir(async (temporaryDirectory) => DolphinToolBin.run([
+      return utils.wrapTempDir(async (temporaryDirectory) => runFunction([
         ...runOptions,
         '-u', temporaryDirectory,
-      ], options));
+      ]));
     }
 
-    return DolphinToolBin.run([
+    return runFunction([
       ...runOptions,
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
-    ], options);
+    ]);
   },
 };

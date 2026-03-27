@@ -162,7 +162,7 @@ jobs:
         include:
           - os: macos-15-intel
             nodejs_arch: x64
-          - os: macos-15
+          - os: macos-latest
             nodejs_arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
