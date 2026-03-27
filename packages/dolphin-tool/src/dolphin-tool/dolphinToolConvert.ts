@@ -51,8 +51,8 @@ export default {
       ...(compressionLevel === undefined ? [] : ['-l', String(compressionLevel)]),
     ];
 
-    const convertFunction = async (convertArguments: string[]): Promise<string> => {
-      const convertOutput = await DolphinToolBin.run(convertArguments, options);
+    const runFunction = async (runArguments: string[]): Promise<string> => {
+      const convertOutput = await DolphinToolBin.run(runArguments, options);
 
       // Try to detect failures, and then retry them automatically
       try {
@@ -80,13 +80,13 @@ export default {
        *      improper permissions or use by another process."
        * To combat this, we have to use separate user directories per process.
        */
-      return utils.wrapTempDir(async (temporaryDirectory) => convertFunction([
+      return utils.wrapTempDir(async (temporaryDirectory) => runFunction([
         ...runOptions,
         '-u', temporaryDirectory,
       ]));
     }
 
-    return convertFunction([
+    return runFunction([
       ...runOptions,
       ...(options.userFolderPath ? ['-u', options.userFolderPath] : []),
     ]);
