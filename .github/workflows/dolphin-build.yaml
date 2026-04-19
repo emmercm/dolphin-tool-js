@@ -115,6 +115,7 @@ jobs:
               -Wno-dev \
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
+              -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
               -DENABLE_HWDB=OFF \
@@ -142,6 +143,8 @@ jobs:
           file dolphin-tool
           readelf -d dolphin-tool | grep NEEDED
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libusb-1.0'; then exit 1; fi
+          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libstdc++'; then exit 1; fi
+          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libgcc_s'; then exit 1; fi
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
