@@ -55,14 +55,14 @@ jobs:
           #- docker_image: i386/ubuntu:latest
           #  docker_arch: linux/386
           #  nodejs_arch: ia32
-          - docker_image: ubuntu:latest
+          - docker_image: alpine:latest
             docker_arch: linux/amd64
             nodejs_arch: x64
-          - docker_image: ubuntu:latest
+          - docker_image: alpine:latest
             docker_arch: linux/arm/v7
             nodejs_arch: arm
             cmake_opts: -DENABLE_GENERIC=true
-          - docker_image: ubuntu:latest
+          - docker_image: alpine:latest
             docker_arch: linux/arm64/v8
             nodejs_arch: arm64
     runs-on: ubuntu-latest
@@ -77,22 +77,22 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ matrix.docker_image }}
-          shell: bash
+          shell: sh
           options: |
             --platform ${{ matrix.docker_arch }}
             --volume ${{ github.workspace }}:/build
             --workdir /build
           run: |
-            set -euo pipefail
+            set -eu
             set -x
 
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
-            apt-get update
-            apt-get install -y build-essential cmake pkg-config
+            apk add --no-cache build-base cmake pkgconfig linux-headers
 
-            # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking
-            apt-get install -y libusb-1.0-0-dev libudev-dev
-            rm "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
+            # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking.
+            # Alpine's *-dev packages bundle .a archives needed by -static.
+            apk add --no-cache libusb-dev eudev-dev
+            rm -f "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
 
             mkdir build && cd build
             cmake \
@@ -115,7 +115,10 @@ jobs:
               -Wno-dev \
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
-              -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc" \
+              -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+              -DENABLE_LTO=ON \
+              -DUSE_SYSTEM_ICONV=ON \
+              -DCMAKE_EXE_LINKER_FLAGS="-static -Wl,--gc-sections" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
               -DENABLE_HWDB=OFF \
@@ -131,7 +134,6 @@ jobs:
             ./dolphin-tool --help || true
 
             # Strip binary
-            apt-get install -y binutils
             ls -al dolphin-tool
             strip dolphin-tool
             ls -al dolphin-tool
@@ -140,11 +142,17 @@ jobs:
       - name: Test binary
         run: |
           set -x
+          readelf -d dolphin-tool
           file dolphin-tool
-          readelf -d dolphin-tool | grep NEEDED
-          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libusb-1.0'; then exit 1; fi
-          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libstdc++'; then exit 1; fi
-          if readelf -d dolphin-tool | grep NEEDED | grep -q 'libgcc_s'; then exit 1; fi
+          if readelf -d dolphin-tool | grep -q NEEDED; then
+            echo "ERROR: binary has dynamic dependencies, expected fully static"
+            readelf -d dolphin-tool | grep NEEDED
+            exit 1
+          fi
+          if ! file dolphin-tool | grep -qE 'statically linked|static-pie linked'; then
+            echo "ERROR: 'file' does not report the binary as statically linked"
+            exit 1
+          fi
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
@@ -201,10 +209,12 @@ jobs:
             -Wno-dev \
             `# macOS options` \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DENABLE_LTO=ON \
             -DSKIP_POSTPROCESS_BUNDLE=true \
             -DUSE_SYSTEM_ICONV=ON \
             -DUSE_SYSTEM_BZIP2=ON \
             -DUSE_SYSTEM_CURL=ON \
+            -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dead_strip" \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
           mv Binaries/dolphin-tool ../
