@@ -91,8 +91,8 @@ jobs:
             apk add --no-cache build-base cmake pkgconfig linux-headers
 
             # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking.
-            # libusb-static provides the .a archive that -static needs.
-            apk add --no-cache libusb-dev libusb-static eudev-dev
+            # Alpine's libusb-dev bundles the .a archive needed by -static.
+            apk add --no-cache libusb-dev eudev-dev
             rm -f "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
 
             mkdir build && cd build
