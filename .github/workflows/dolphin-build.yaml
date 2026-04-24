@@ -92,10 +92,6 @@ jobs:
 
             # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking.
             # Alpine's *-dev packages bundle .a archives needed by -static.
-            # iconv is provided by musl libc directly (via musl-dev in build-base),
-            # so no separate libiconv package is needed. We skip the bundled
-            # Externals/libiconv-1.14 because it has a K&R-era mbrtowc declaration
-            # that conflicts with musl's prototype.
             apk add --no-cache libusb-dev eudev-dev
             rm -f "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
 
@@ -137,7 +133,7 @@ jobs:
             # Test binary
             ./dolphin-tool --help || true
 
-            # Strip binary (strip is part of binutils, included in build-base)
+            # Strip binary
             ls -al dolphin-tool
             strip dolphin-tool
             ls -al dolphin-tool
@@ -147,7 +143,6 @@ jobs:
         run: |
           set -x
           file dolphin-tool
-          # A fully static musl binary should have zero dynamic dependencies.
           if readelf -d dolphin-tool | grep -q NEEDED; then
             echo "ERROR: binary has dynamic dependencies, expected fully static"
             readelf -d dolphin-tool | grep NEEDED
