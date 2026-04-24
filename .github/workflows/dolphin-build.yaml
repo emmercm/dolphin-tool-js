@@ -16,6 +16,7 @@ on:
         required: true
         type: boolean
         default: true
+  push:
 run-name: "${{ github.workflow }}: ${{ inputs.dolphin_ref || '(default version)' }}"
 
 concurrency:
@@ -55,14 +56,14 @@ jobs:
           #- docker_image: i386/ubuntu:latest
           #  docker_arch: linux/386
           #  nodejs_arch: ia32
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/amd64
             nodejs_arch: x64
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/arm/v7
             nodejs_arch: arm
             cmake_opts: -DENABLE_GENERIC=true
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/arm64/v8
             nodejs_arch: arm64
     runs-on: ubuntu-latest
@@ -86,9 +87,22 @@ jobs:
             set -euo pipefail
             set -x
 
+            # tzdata will hang waiting for user input
+            export DEBIAN_FRONTEND=noninteractive
+
             # https://github.com/dolphin-emu/dolphin/wiki/Building-for-Linux
             apt-get update
             apt-get install -y build-essential cmake pkg-config
+
+            # Ubuntu 20.04 ships gcc 9; Dolphin requires gcc 11+. Install from the
+            # Ubuntu Toolchain PPA. Newer gcc on focal still links against the
+            # system glibc 2.31, so this keeps the portability floor.
+            apt-get install -y software-properties-common
+            add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            apt-get update
+            apt-get install -y gcc-11 g++-11
+            export CC=gcc-11
+            export CXX=g++-11
 
             # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking
             apt-get install -y libusb-1.0-0-dev libudev-dev
@@ -145,6 +159,14 @@ jobs:
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libusb-1.0'; then exit 1; fi
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libstdc++'; then exit 1; fi
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libgcc_s'; then exit 1; fi
+          # Assert the binary does not require a glibc newer than Ubuntu 20.04 ships (2.31)
+          max_allowed=2.31
+          highest=$(objdump -T dolphin-tool | grep -oE 'GLIBC_[0-9]+\.[0-9]+' | sed 's/GLIBC_//' | sort -V | tail -1)
+          echo "Highest required glibc symbol: ${highest} (max allowed: ${max_allowed})"
+          if [ "$(printf '%s\n%s\n' "${max_allowed}" "${highest}" | sort -V | tail -1)" != "${max_allowed}" ]; then
+            echo "ERROR: binary requires glibc ${highest}, exceeds floor ${max_allowed}"
+            exit 1
+          fi
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
@@ -265,79 +287,3 @@ jobs:
           name: ${{ runner.os }}-${{ matrix.nodejs_arch }}-${{ github.sha }}
           path: artifacts/**/DolphinTool.exe
           if-no-files-found: error
-
-  git-update:
-    needs:
-      - get-version
-      - build-linux
-      - build-macos
-      - build-windows
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.igir_ref }}
-      - name: Delete old macoS .dylibs
-        run: |
-          rm -f packages/*-darwin-*/*.dylib
-      - uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-      - uses: actions/setup-node@v4
-      - id: bump-and-commit
-        run: |
-          package_name=$(jq --raw-output '.name' packages/dolphin-tool/package.json)
-          major_version=$(npm show "${package_name}" --json | jq --raw-output '.versions | .[]' | sed 's/\.[0-9]*//g' | sort | tail -1)
-          # shellcheck disable=SC2001
-          minor_version=${{ needs.get-version.outputs.major }}
-          previous_version=$(npm show "${package_name}" --json | jq --raw-output '.versions | .[]' | grep "${minor_version}" | tail -1)
-          if [[ "${previous_version}" != "" ]]; then
-            # shellcheck disable=SC2001
-            new_patch_version=$(echo "$(echo "${previous_version}" | sed 's/[0-9]*\.//g') + 1" | bc)
-            new_version="${major_version}.${minor_version}.${new_patch_version}"
-          else
-            new_version="${major_version}.${minor_version}.0"
-          fi
-          lerna version "${new_version}" --yes || true
-
-          chmod +x packages/dolphin-tool-*-*/dolphin-tool packages/dolphin-tool-*-*/DolphinTool.exe
-          ls -lR
-          git add package*.json lerna.json packages
-
-          USER_EMAIL="${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
-          echo "USER_EMAIL=${USER_EMAIL}" >> "${GITHUB_OUTPUT}"
-          git config --global user.email "${USER_EMAIL}"
-
-          USER_NAME="$(gh api "/users/${GITHUB_ACTOR}" | jq .name -r)"
-          echo "USER_NAME=${USER_NAME}" >> "${GITHUB_OUTPUT}"
-          git config --global user.name "${USER_NAME}"
-
-          PACKAGE_VERSION="$(jq --raw-output '.version' packages/dolphin-tool/package.json)"
-          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> "${GITHUB_OUTPUT}"
-          git commit -m "v${PACKAGE_VERSION}"
-        env:
-          GH_TOKEN: ${{ github.token }}
-      # Create the pull request, and optionally mark it as auto-merge
-      - id: create-pull-request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          # GitHub won't run workflows off of events from the `github-actions` user
-          # But also, I want the PR to be created under my name for cosmetic reasons
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          author: ${{ steps.bump-and-commit.outputs.USER_NAME }} <${{ steps.bump-and-commit.outputs.USER_EMAIL }}>
-          branch: ${{ github.actor }}/${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
-          delete-branch: true
-          title: v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}
-          assignees: ${{ !inputs.auto-merge && github.repository_owner || '' }}
-          reviewers: ${{ (!inputs.auto-merge && github.repository_owner != github.actor) && github.repository_owner || '' }}
-      - if: ${{ steps.create-pull-request.outputs.pull-request-number }}
-        run: |
-          {
-            echo "# v${{ steps.bump-and-commit.outputs.PACKAGE_VERSION }}"
-            echo ""
-            echo "${{ steps.create-pull-request.outputs.pull-request-url }}"
-          } >> "${GITHUB_STEP_SUMMARY}"
-      - if: ${{ steps.create-pull-request.outputs.pull-request-number && inputs.auto-merge }}
-        run: gh pr merge "${{ steps.create-pull-request.outputs.pull-request-number }}" --squash --auto
-        env:
-          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
