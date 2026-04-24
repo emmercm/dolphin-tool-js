@@ -91,8 +91,10 @@ jobs:
             apk add --no-cache build-base cmake pkgconfig linux-headers
 
             # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking.
-            # Alpine's libusb-dev bundles the .a archive needed by -static.
-            apk add --no-cache libusb-dev eudev-dev
+            # Alpine's *-dev packages bundle .a archives needed by -static.
+            # libiconv-dev: the bundled Externals/libiconv-1.14 has a K&R-era mbrtowc
+            # declaration that conflicts with musl's prototype, so use system libiconv.
+            apk add --no-cache libusb-dev eudev-dev libiconv-dev
             rm -f "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
 
             mkdir build && cd build
@@ -117,6 +119,7 @@ jobs:
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
               -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+              -DUSE_SYSTEM_ICONV=ON \
               -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
