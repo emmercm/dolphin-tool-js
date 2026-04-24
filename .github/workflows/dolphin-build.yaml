@@ -119,8 +119,8 @@ jobs:
               -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
               -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
               -DUSE_SYSTEM_ICONV=ON \
-              -DCMAKE_C_FLAGS="-ffunction-sections -fdata-sections" \
-              -DCMAKE_CXX_FLAGS="-ffunction-sections -fdata-sections" \
+              -DCMAKE_C_FLAGS="-ffunction-sections -fdata-sections -fno-strict-aliasing" \
+              -DCMAKE_CXX_FLAGS="-ffunction-sections -fdata-sections -fno-strict-aliasing" \
               -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc -Wl,--gc-sections -Wl,-s" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
@@ -217,6 +217,8 @@ jobs:
             -DUSE_SYSTEM_ICONV=ON \
             -DUSE_SYSTEM_BZIP2=ON \
             -DUSE_SYSTEM_CURL=ON \
+            -DCMAKE_C_FLAGS="-fno-strict-aliasing" \
+            -DCMAKE_CXX_FLAGS="-fno-strict-aliasing" \
             -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dead_strip" \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
