@@ -92,9 +92,11 @@ jobs:
 
             # Dolphin provides these at ./Externals/, but use the latest available instead, and force static linking.
             # Alpine's *-dev packages bundle .a archives needed by -static.
-            # libiconv-dev: the bundled Externals/libiconv-1.14 has a K&R-era mbrtowc
-            # declaration that conflicts with musl's prototype, so use system libiconv.
-            apk add --no-cache libusb-dev eudev-dev libiconv-dev
+            # iconv is provided by musl libc directly (via musl-dev in build-base),
+            # so no separate libiconv package is needed. We skip the bundled
+            # Externals/libiconv-1.14 because it has a K&R-era mbrtowc declaration
+            # that conflicts with musl's prototype.
+            apk add --no-cache libusb-dev eudev-dev
             rm -f "$(pkg-config --variable=libdir libusb-1.0)"/libusb-1.0*.so*
 
             mkdir build && cd build
