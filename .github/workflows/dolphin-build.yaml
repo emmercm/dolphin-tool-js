@@ -55,14 +55,14 @@ jobs:
           #- docker_image: i386/ubuntu:latest
           #  docker_arch: linux/386
           #  nodejs_arch: ia32
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/amd64
             nodejs_arch: x64
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/arm/v7
             nodejs_arch: arm
             cmake_opts: -DENABLE_GENERIC=true
-          - docker_image: ubuntu:latest
+          - docker_image: ubuntu:20.04
             docker_arch: linux/arm64/v8
             nodejs_arch: arm64
     runs-on: ubuntu-latest
@@ -145,6 +145,21 @@ jobs:
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libusb-1.0'; then exit 1; fi
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libstdc++'; then exit 1; fi
           if readelf -d dolphin-tool | grep NEEDED | grep -q 'libgcc_s'; then exit 1; fi
+          # Assert the binary does not require a glibc newer than Ubuntu 20.04 ships (2.31)
+          max_allowed=2.31
+          highest=$(objdump -T dolphin-tool | grep -oE 'GLIBC_[0-9]+\.[0-9]+' | sed 's/GLIBC_//' | sort -V | tail -1)
+          echo "Highest required glibc symbol: ${highest} (max allowed: ${max_allowed})"
+          if [ "$(printf '%s\n%s\n' "${max_allowed}" "${highest}" | sort -V | tail -1)" != "${max_allowed}" ]; then
+            echo "ERROR: binary requires glibc ${highest}, exceeds floor ${max_allowed}"
+            exit 1
+          fi
+      - name: Run binary on older distro
+        # Build host has glibc 2.31 (Ubuntu 20.04); verify the binary also loads on
+        # a genuinely older glibc environment (Debian 10 buster = glibc 2.28).
+        run: |
+          docker run --rm --platform ${{ matrix.docker_arch }} \
+            --volume "${{ github.workspace }}:/work" --workdir /work \
+            debian:10-slim ./dolphin-tool --help
       - name: Rename binary
         run: |
           dir="artifacts/packages/dolphin-tool-linux-${{ matrix.nodejs_arch }}"
