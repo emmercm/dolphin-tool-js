@@ -116,6 +116,7 @@ jobs:
               -Wno-dev \
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
+              -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
               -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
