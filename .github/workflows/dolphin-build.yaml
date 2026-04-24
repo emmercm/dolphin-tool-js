@@ -117,11 +117,9 @@ jobs:
               `# Linux options` \
               ${{ matrix.cmake_opts }} \
               -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-              -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
+              -DENABLE_LTO=ON \
               -DUSE_SYSTEM_ICONV=ON \
-              -DCMAKE_C_FLAGS="-ffunction-sections -fdata-sections -fno-strict-aliasing" \
-              -DCMAKE_CXX_FLAGS="-ffunction-sections -fdata-sections -fno-strict-aliasing" \
-              -DCMAKE_EXE_LINKER_FLAGS="-static -static-libstdc++ -static-libgcc -Wl,--gc-sections -Wl,-s" \
+              -DCMAKE_EXE_LINKER_FLAGS="-static -Wl,--gc-sections" \
               -DENABLE_X11=OFF \
               -DENABLE_EGL=OFF \
               -DENABLE_HWDB=OFF \
@@ -212,13 +210,11 @@ jobs:
             -Wno-dev \
             `# macOS options` \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-            -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=TRUE \
+            -DENABLE_LTO=ON \
             -DSKIP_POSTPROCESS_BUNDLE=true \
             -DUSE_SYSTEM_ICONV=ON \
             -DUSE_SYSTEM_BZIP2=ON \
             -DUSE_SYSTEM_CURL=ON \
-            -DCMAKE_C_FLAGS="-fno-strict-aliasing" \
-            -DCMAKE_CXX_FLAGS="-fno-strict-aliasing" \
             -DCMAKE_EXE_LINKER_FLAGS="-Wl,-dead_strip" \
             ..
           make "-j$(sysctl -n hw.physicalcpu)" || true
