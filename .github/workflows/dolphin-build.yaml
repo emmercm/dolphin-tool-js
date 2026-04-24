@@ -142,13 +142,14 @@ jobs:
       - name: Test binary
         run: |
           set -x
+          readelf -d dolphin-tool
           file dolphin-tool
           if readelf -d dolphin-tool | grep -q NEEDED; then
             echo "ERROR: binary has dynamic dependencies, expected fully static"
             readelf -d dolphin-tool | grep NEEDED
             exit 1
           fi
-          if ! file dolphin-tool | grep -q 'statically linked'; then
+          if ! file dolphin-tool | grep -qE 'statically linked|static-pie linked'; then
             echo "ERROR: 'file' does not report the binary as statically linked"
             exit 1
           fi
