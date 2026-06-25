@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       dolphin_ref:
-        description: 'Dolphin GitHub version tag (e.g. "2506a")'
+        description: 'Dolphin GitHub version tag (e.g. "2606")'
         required: true
         type: string
       auto-merge:
@@ -26,7 +26,7 @@ permissions:
   contents: write
 
 env:
-  dolphin_ref: ${{ inputs.dolphin_ref || '2506a' }}
+  dolphin_ref: ${{ inputs.dolphin_ref || '2606' }}
   igir_ref: ${{ github.head_ref || github.ref }}
 
 jobs:
@@ -252,7 +252,8 @@ jobs:
             nodejs_arch: x64
           - platform: ARM64
             nodejs_arch: arm64
-    runs-on: windows-latest
+    # Dolphin v2606 requires VS 2022 (v143)
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
         with:
