@@ -107,7 +107,7 @@ export default class DolphinToolBin {
         // Extract all files if necessary
         const temporaryBlobs = await Promise.all(
           [dolphinToolBlob, ...dylibBlobs].map(async (blob) => {
-          // @ts-expect-error https://github.com/oven-sh/bun/issues/20700
+            // @ts-expect-error https://github.com/oven-sh/bun/issues/20700
             const blobName: string = blob.name.replace(/-[\da-z]{8}\./, '.').replace(/\.+$/, '');
             const temporaryBlob = path.join(temporaryDirectory, blobName);
             try {
@@ -122,7 +122,7 @@ export default class DolphinToolBin {
             return temporaryBlob;
           }),
         );
-        return temporaryBlobs.find((temporaryBlob) => path.basename(temporaryBlob).startsWith('dolphin'));
+        return temporaryBlobs.find((temporaryBlob) => path.basename(temporaryBlob).toLowerCase().startsWith('dolphin'));
       }
     } catch { /* ignored */ }
 
