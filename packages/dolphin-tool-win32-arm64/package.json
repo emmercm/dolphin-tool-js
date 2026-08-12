@@ -1,6 +1,6 @@
 {
   "name": "@emmercm/dolphin-tool-win32-arm64",
-  "version": "0.2606.1",
+  "version": "0.2606.2",
   "os": [
     "win32"
   ],
